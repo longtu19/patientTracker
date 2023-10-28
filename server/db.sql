@@ -13,7 +13,7 @@ CREATE TABLE patient (
     patient_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
     date_of_birth DATE,
-    gender VARCHAR(50),
+    sex VARCHAR(50),
     address TEXT,
     phone_number VARCHAR(50),
     insurance_info TEXT,
@@ -26,9 +26,7 @@ CREATE TABLE patient (
 CREATE TABLE doctor (
     doctor_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
-    specialty VARCHAR(255),
-    qualification TEXT,
-    working_hospital TEXT
+    specialty VARCHAR(255)
 );
 
 -- Medical Record Table
