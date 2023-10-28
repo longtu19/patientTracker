@@ -6,5 +6,13 @@ app = Flask(__name__)
 def index():
     return "Hello world"
 
+@app.route('/register')
+def register():
+    pass
+
+@app.route('/login')
+def login():
+    pass
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug = True)
