@@ -23,7 +23,7 @@ export default function DoctorHome() {
   let [firstname, setFirstname] = React.useState("");
   let [lastname, setLastname] = React.useState("");
   let [datevalue, setDate] = React.useState("");
-  let [patLst, setPatLst] = React.useState([]);
+  let [patLst, setPatLst] = React.useState(patients);
   let [selectedPat, setSelectedPat] = React.useState(null);
   let [count, setCount] = React.useState(patLst.length);
 
@@ -68,11 +68,8 @@ export default function DoctorHome() {
     <div className="homebg">
       <div className="container d-flex justify-content-center align-items-center  ">
         <div className="employeeBox justify-content-center align-items-center  ">
-          <div >
-            <div
-              className="mb-4 d-flex justify-content-center"
-              style={{ color: "#162938" }}
-            >
+          <div>
+            <div className="mb-2 d-flex " style={{ color: "#162938" }}>
               <h2>Patients</h2>
             </div>
 
@@ -97,7 +94,7 @@ export default function DoctorHome() {
             <div className="  d-flex justify-content-center ">
               <div className="list-container">
                 <ul className="list-group em_list">
-                  {patients.map((pat) => (
+                  {filteredPat.map((pat) => (
                     <li className="list-group-item em btn">
                       <p>
                         {pat.first} {pat.last}
