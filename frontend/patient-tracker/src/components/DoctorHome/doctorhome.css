@@ -1,0 +1,262 @@
+.employeeBox{
+    display: flex;
+    margin-top: 5%;
+    width: 750px;
+    height: 575px;
+    border: 2px solid rgba(255,255,255, .5);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 30px rgba(0,0,0,.5);
+    /* background-color: rgb(224, 198, 198); */
+    background-color: rgb(246, 246, 246);
+
+}
+
+
+.em_list{
+    width: 100%;
+
+
+}
+.em {
+    border: none;
+    border-bottom: 1px  solid #162938;
+    /* background-color: rgb(224, 198, 198); */
+    background-color: white;
+    margin-bottom: 11px;
+    border-radius: 0;
+    cursor: default;
+    display: flex;
+    padding-top: 20px;
+    padding-bottom: 0;
+ 
+    
+}
+
+.list-group-item:hover{
+    cursor: pointer;
+}
+
+.list-group-item:last-child{
+    border-bottom: none;
+}
+
+.srch-parent{
+    margin-top: 22px;
+
+}
+
+.srch-btn{
+    background: #162938;
+    /* color: #E6986B; */
+    color: white;
+    border-radius: 30px;
+
+}
+
+.srch-btn:hover{
+    /* background: #E6986B;
+    color: #162938; */
+    background: rgb(36, 52, 116);
+    color: #ffffff;
+
+}
+
+.em_search{
+    height: 60px;
+    border-radius: 30px;
+    padding-left: 2rem;
+    border: none;
+    background: transparent;
+    color: #162938;
+  
+}
+.em_search:focus{
+    background-color: transparent;
+  
+    border: 1px solid #162938;
+}
+
+.list-container{
+    margin-top: 7%;
+    width: 100%;
+    overflow-y: auto;
+    height: 250px;
+    padding-right: 20px;
+    padding-left: 10px;
+
+
+}
+
+::-webkit-scrollbar {
+    width: 20px; /* Width of the scrollbar */
+  }
+
+::-webkit-scrollbar-track {
+    /* background-color: rgb(224, 198, 198); Color of the track */
+    background-color: rgb(220, 220, 220); /*Color of the track */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    /* background-color: rgb(193, 108, 108); Color of the thumb */
+    background-color: rgb(160, 160, 160); /*Color of the thumb */
+    border-radius: 20px; /* Rounded corners of the thumb */
+    
+  }
+
+
+.my-emp-modal .modal-body,.modal-head{
+    border-color: #162938;
+    background-color: white;
+
+  }
+
+.modal-head{
+    background-color: #162938;
+    color: #E6986B;
+}
+
+.close{
+    color: #E6986B;
+    background-color: #162938;
+    border: none;
+    font-size: 30px;
+   
+  
+
+}
+
+.my-emp-modal{
+    margin-top: 7%;
+   
+
+}
+
+.emp-photo{
+    width: 40%;
+    height: 50%;
+}
+.homebg{
+    background: #D1E8E2;
+    height: 100vh;
+}
+
+.firstLast{
+    margin-left: 3rem;
+    margin-top: 2rem;
+    color: #162938;
+}
+
+.work_info{
+    color: #162938;
+}
+
+.view_emp_payroll_btn{
+    width: 100%;
+    height: 45px;
+    background: #162938;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    color: #E6986B;
+    font-weight: 500;
+    justify-content: center;
+
+}
+
+.add-btn{
+    background: #162938;
+    /* color: #E6986B; */
+    color: white;
+    display: flex;
+    
+
+}
+
+.add-btn:hover{
+    /* background: #E6986B;
+    color: #162938; */
+    background: rgb(36, 52, 116);
+    color: #ffffff;
+}
+
+.add_teammate label{
+    
+    color: #162938;
+}
+
+.add_teammate input{
+    height: 40px;
+}
+
+.add_teammate input:focus{
+    border: 2px solid #162938;
+}
+
+.modal-add-btn{
+    width: 50%;
+    height: 45px;
+    background: #162938;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    color: #E6986B;
+    font-weight: 500;
+    justify-content: center;
+    display: flex;
+
+}
+
+.modal-add-btn:hover{
+    /* background: #E6986B;
+    color: #162938; */
+    background: rgb(36, 52, 116);
+    color: #ffffff;
+
+}
+
+.remove-btn{
+    width: 100%;
+    height: 45px;
+    background: #841010;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    color: #E6986B;
+    font-weight: 500;
+    justify-content: center;
+
+
+}
+
+
+.metric{
+    display: inline-flex;
+    flex-direction: row;
+
+
+}
+
+.count-btn{
+    background: #162938;
+    /* color: #E6986B; */
+    color: white;
+    display: flex;
+    font-size: medium;
+    width: max-content;
+    margin-right: 32rem;
+    
+}
+.count-btn:hover{
+    /* background: #E6986B;
+    color: #162938; */
+    background: rgb(36, 52, 116);
+    color: #ffffff;
+
+}
+
+
+
