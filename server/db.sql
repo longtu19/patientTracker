@@ -1,5 +1,5 @@
 -- User Table
-CREATE TABLE SystemUser(
+CREATE TABLE System_user(
     user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE SystemUser(
 -- Patient Table
 CREATE TABLE Patient (
     patient_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES SystemUser(user_id) ON DELETE CASCADE,
+    user_id INT REFERENCES System_user(user_id) ON DELETE CASCADE,
     date_of_birth DATE,
     sex VARCHAR(50),
     address TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE Patient (
 -- Doctor Table
 CREATE TABLE Doctor (
     doctor_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES SystemUser(user_id) ON DELETE CASCADE,
+    user_id INT REFERENCES System_user(user_id) ON DELETE CASCADE,
     specialty VARCHAR(255)
 );
 
