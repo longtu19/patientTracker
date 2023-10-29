@@ -2,6 +2,8 @@ from flask import Flask
 from dotenv import load_dotenv
 import psycopg2
 import os
+from flask_bcrypt import Bcrypt
+from requests import *
 
 load_dotenv()
 app = Flask(__name__)
@@ -12,18 +14,39 @@ conn = psycopg2.connect(
     password = os.environ.get("MASTER_PASSWORD"),
     dbname = os.environ.get("DATABASE_NAME")
 )
-
-cur = conn.cursor()
-cur.execute(" CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR(255), age INT);")
-conn.commit()
-
 @app.route('/')
 def index():
     return "hi"
 
-@app.route('/register')
+@app.route('/register', methods = ["POST"])
 def register():
-    pass
+    try:
+        cur = conn.cursor()
+        email = request.form['email']
+        cur.execute("SELECT * FROM System_user WHERE username = %s", (email, ))
+        exists = cur.fetchone()
+        if exists:
+            pass
+        else:
+            password = Bcrypt.generate_password_hash(request.form['password'])
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+            is_patient = request.form['status'] == "patient"
+            if is_patient:
+                birthday = request.form['birthday']
+                sex = request.form['sex']
+                cur.execute("INSERT INTO System_user (email, password, first_name, last_name, birthday, sex) \
+                VALUES (%s, %s, %s, %s, %s, %s)", (email, password, first_name, last_name, birthday, sex))
+            else:
+                cur.execute("INSERT INTO System_user (email, password, first_name, last_name) \
+                VALUES (%s, %s, %s, %s)", (email, password, first_name, last_name))
+            conn.commit()
+    except ValueError as e:
+        print(e)
+        
+
+
+
 
 @app.route('/login')
 def login():
