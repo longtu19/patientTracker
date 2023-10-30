@@ -11,6 +11,10 @@ export default function LogIn(props) {
     navigate("/doctorHome");
   };
 
+  const handleRegister = () => {
+    navigate("/register");
+  };
+
   return (
     <div className="loginbg">
       <div className="login_wrapper">
@@ -27,7 +31,9 @@ export default function LogIn(props) {
           <button className="loginButton" onClick={handleLogin}>
             Login
           </button>
-          <button className="createAccButton">Create Account</button>
+          <button className="createAccButton" onClick={handleRegister}>
+            Create Account
+          </button>
 
           <div className="mt-4 ">
             <a href="#" class="forgotpw">
