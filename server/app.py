@@ -16,7 +16,7 @@ conn = psycopg2.connect(
 )
 @app.route('/')
 def index():
-    return "hi"
+    return "Welcome"
 
 @app.route('/register', methods = ["POST"])
 def register():
@@ -26,6 +26,7 @@ def register():
         cur.execute("SELECT * FROM System_user WHERE username = %s", (email, ))
         exists = cur.fetchone()
         if exists:
+            #TODO: return error response to the frontend
             pass
         else:
             password = Bcrypt.generate_password_hash(request.form['password'])
@@ -44,13 +45,21 @@ def register():
     except ValueError as e:
         print(e)
         
-
-
-
-
 @app.route('/login')
 def login():
-    pass
+    try:
+        cur = conn.cursor()
+        email = request.form['email']
+        password = request.form['password']
+        cur.execute("SELECT * FROM System_user WHERE username = %s", (email))
+        entry = cur.fetchone()
+        if Bcrypt.check_password_hash(entry['password'], password):
+            conn.commit()
+        else:
+            #TODO: return error response to the frontend
+            pass 
+    except ValueError as e:
+        print(e)
 
 if __name__ == "__main__":
     app.run(debug = True)
