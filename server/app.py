@@ -45,7 +45,7 @@ def register():
     except ValueError as e:
         print(e)
         
-@app.route('/login')
+@app.route('/login', methods = ["POST"])
 def login():
     try:
         cur = conn.cursor()
