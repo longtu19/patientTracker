@@ -1,6 +1,7 @@
 import logo from "./logo.svg";
 import "./App.css";
 import LogIn from "./components/LogIn/LogIn";
+import Register from "./components/Register/Register";
 import DoctorHome from "./components/DoctorHome/DoctorHome";
 import PatientHome from "./components/PatientHome/PatientHome";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -14,6 +15,7 @@ function App() {
         <NavBar/>
         <Routes>
           <Route path="/" element={<LogIn />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/doctorHome" element={<DoctorHome />} />
           <Route path="/patientHome" element={<PatientHome />} />
         </Routes>
