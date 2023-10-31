@@ -23,7 +23,7 @@ def register():
     try:
         cur = conn.cursor()
         email = request.form['email']
-        cur.execute("SELECT * FROM System_user WHERE username = %s", (email, ))
+        cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
             #TODO: return error response to the frontend
@@ -51,7 +51,7 @@ def login():
         cur = conn.cursor()
         email = request.form['email']
         password = request.form['password']
-        cur.execute("SELECT * FROM System_user WHERE username = %s", (email))
+        cur.execute("SELECT * FROM System_user WHERE email = %s", (email))
         entry = cur.fetchone()
         if Bcrypt.check_password_hash(entry['password'], password):
             conn.commit()
