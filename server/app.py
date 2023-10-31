@@ -26,8 +26,7 @@ def register():
         cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
-            #TODO: return error response to the frontend
-            pass
+            return {"Result": "Error", "Error": "Email is already registered"}
         else:
             password = Bcrypt.generate_password_hash(request.form['password'])
             first_name = request.form['first_name']
@@ -42,6 +41,7 @@ def register():
                 cur.execute("INSERT INTO System_user (email, password, first_name, last_name) \
                 VALUES (%s, %s, %s, %s)", (email, password, first_name, last_name))
             conn.commit()
+            return {"Result": "Success"}
     except ValueError as e:
         print(e)
         
@@ -53,11 +53,14 @@ def login():
         password = request.form['password']
         cur.execute("SELECT * FROM System_user WHERE email = %s", (email))
         entry = cur.fetchone()
+        if not entry:
+            return {"Result": "Error", "Error": "Email is not registered"}
+
         if Bcrypt.check_password_hash(entry['password'], password):
             conn.commit()
+            return {"Result": "Success"}
         else:
-            #TODO: return error response to the frontend
-            pass 
+            return {"Result": "Error", "Error": "Invalid Password!"}
     except ValueError as e:
         print(e)
 
