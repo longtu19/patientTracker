@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 import psycopg2
 import os
 from flask_bcrypt import Bcrypt
+
 from requests import *
 
 load_dotenv()
@@ -14,6 +15,7 @@ conn = psycopg2.connect(
     password = os.environ.get("MASTER_PASSWORD"),
     dbname = os.environ.get("DATABASE_NAME")
 )
+
 @app.route('/')
 def index():
     return "Welcome"
@@ -26,7 +28,7 @@ def register():
         cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
-            return {"Result": "Error", "Error": "Email is already registered"}
+            return jsonify({"Result": "Error", "Error": "Email is already registered"})
         else:
             password = Bcrypt.generate_password_hash(request.form['password'])
             first_name = request.form['first_name']
@@ -41,7 +43,7 @@ def register():
                 cur.execute("INSERT INTO System_user (email, password, first_name, last_name) \
                 VALUES (%s, %s, %s, %s)", (email, password, first_name, last_name))
             conn.commit()
-            return {"Result": "Success"}
+            return jsonify({"Result": "Success"})
     except ValueError as e:
         print(e)
         
@@ -54,13 +56,13 @@ def login():
         cur.execute("SELECT * FROM System_user WHERE email = %s", (email))
         entry = cur.fetchone()
         if not entry:
-            return {"Result": "Error", "Error": "Email is not registered"}
+            return jsonify({"Result": "Error", "Error": "Email is not registered"})
 
         if Bcrypt.check_password_hash(entry['password'], password):
             conn.commit()
-            return {"Result": "Success"}
+            return jsonify({"Result": "Success"})
         else:
-            return {"Result": "Error", "Error": "Invalid Password!"}
+            return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
         print(e)
 
