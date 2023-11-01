@@ -8,6 +8,8 @@ from requests import *
 
 load_dotenv()
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
+
 conn = psycopg2.connect(
     host = os.environ.get("ENDPOINT"),
     port = os.environ.get("PORT"),
@@ -20,28 +22,41 @@ conn = psycopg2.connect(
 def index():
     return "Welcome"
 
-@app.route('/register', methods = ["POST"])
+
+# object = {"email": "abc@gmail.com", "password": "123456", "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
+#     "birthday": "12/24/2002", "sex": "Male"}
+
+@app.route('/register', methods = ["POST", "GET"])
 def register():
     try:
         cur = conn.cursor()
         email = request.form['email']
-        cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
+        cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
             return jsonify({"Result": "Error", "Error": "Email is already registered"})
         else:
-            password = Bcrypt.generate_password_hash(request.form['password'])
+            password = bcrypt.generate_password_hash(request.form['password'])
             first_name = request.form['first_name']
             last_name = request.form['last_name']
-            is_patient = request.form['status'] == "patient"
-            if is_patient:
+            status = request.form['status']
+            cur.execute("INSERT INTO system_user (email, password_hash, first_name, last_name, role) \
+               VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, status))
+            conn.commit()
+
+            cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
+            get_cur_id = cur.fetchone()[0]
+            
+            if status == "patient":
                 birthday = request.form['birthday']
                 sex = request.form['sex']
-                cur.execute("INSERT INTO System_user (email, password, first_name, last_name, birthday, sex) \
-                VALUES (%s, %s, %s, %s, %s, %s)", (email, password, first_name, last_name, birthday, sex))
+
+                #Insert into patients table
+                cur.execute("INSERT INTO patient (user_id, date_of_birth, sex) \
+                VALUES (%s, %s, %s)", (get_cur_id, birthday, sex))
             else:
-                cur.execute("INSERT INTO System_user (email, password, first_name, last_name) \
-                VALUES (%s, %s, %s, %s)", (email, password, first_name, last_name))
+                cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (get_cur_id))
+            
             conn.commit()
             return jsonify({"Result": "Success"})
     except ValueError as e:
@@ -58,7 +73,7 @@ def login():
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
 
-        if Bcrypt.check_password_hash(entry['password'], password):
+        if bcrypt.check_password_hash(entry[2], password):
             conn.commit()
             return jsonify({"Result": "Success"})
         else:
