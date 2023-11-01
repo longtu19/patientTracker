@@ -17,7 +17,7 @@
   
   } 
   
-  .loginFlexbox, .createAccBox .ip input{
+  .loginFlexbox .ip input{
     width: 100%;
     height: 100%;
     background: transparent;
@@ -29,7 +29,7 @@
 
   }
   
-  .loginFlexbox, .createAccBox  .ip{
+  .loginFlexbox .ip{
     position: relative;
     width: 100%;
     height: 50px;
@@ -47,7 +47,7 @@
   .loginFlexbox {
     gap: 1.5rem;
     position: absolute;
-    left: 50%;
+    left: 55%;
     top: 45%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
@@ -184,7 +184,7 @@
   .role {
     display: flex;
     padding: 2px;
-    font-size: 19px;
+    font-size: 22px;
     margin: 30px 0;
     margin-bottom: 2px;
     padding: 0 30px 0 5px;
@@ -202,14 +202,38 @@
     margin-right: 12%;
   }
   .role .sex{
-    font-size: 23px;
+    font-size: 21px;
     float: left;
-    margin-right: 28%;
+    margin-right: 25%;
     margin-left: 1%;
     
   }
 
   .role .sex-choices div{
     margin-right: 38px;
+    
+  }
+
+    
+  .createAccBox .ip input{
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0 30px 0 5px;
+    color:#19747E;
+    font-size: 25px;
+
+  }
+
+  .createAccBox .ip{
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px  solid #162938;
+    margin: 30px 0;
+    padding: 2px;
+    
     
   }

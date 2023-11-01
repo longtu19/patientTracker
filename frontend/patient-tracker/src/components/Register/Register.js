@@ -33,6 +33,32 @@ export default function Register() {
             </div>
           </div>
 
+    
+
+          <div className="ip">
+            <input type="text" placeholder="First Name" />
+          </div>
+
+          <div className="ip">
+            <input type="text" placeholder="Last Name" />
+          </div>
+       
+
+          <div className="ip">
+            <input type="text" placeholder="Email" />
+          </div>
+          <div className="ip">
+            <input type="password" placeholder="Password" />
+          </div>
+
+          {selectedRole === "patient" && (
+            <div className="ip">
+              <input type="text" name="dob" placeholder="Birthday mm/dd/yyyy" pattern="\d{4}-\d{2}-\d{2}" required/>
+            </div>
+          )}
+
+
+
           {selectedRole === "patient" && <div className="role">
             <div className="sex">Sex</div>
             <div className="sex-choices">
@@ -50,26 +76,6 @@ export default function Register() {
               </div>
             </div>
           </div>}
-
-          <div className="ip">
-            <input type="text" placeholder="First Name" />
-          </div>
-
-          <div className="ip">
-            <input type="text" placeholder="Last Name" />
-          </div>
-          {selectedRole === "patient" && (
-            <div className="ip">
-              <input type="text" name="dob" placeholder="Birthday mm/dd/yyyy" pattern="\d{4}-\d{2}-\d{2}" required/>
-            </div>
-          )}
-
-          <div className="ip">
-            <input type="text" placeholder="Email" />
-          </div>
-          <div className="ip">
-            <input type="password" placeholder="Password" />
-          </div>
 
           <button className="createAccButton mt-4">Create Account</button>
         </div>

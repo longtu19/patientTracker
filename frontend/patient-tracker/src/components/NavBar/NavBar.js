@@ -11,8 +11,12 @@ function NavBar() {
           <Link to="/doctorHome">Home</Link>
         </li>
         <li>
+          <Link to="/register">Create Account</Link>
+        </li>
+        <li>
           <Link to="/">Log Out</Link>
         </li>
+      
   
         {/* Add more navigation links */}
       </ul>
