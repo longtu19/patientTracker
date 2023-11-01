@@ -1,11 +1,14 @@
 import React from "react";
 import { Link } from 'react-router-dom';
 import './navbar.css'
+import doctorGau from "../../Images/doctorGau.png"
 
 
 function NavBar() {
   return (
     <nav className="navbar-left">
+      <img className = "gaupic"src = {doctorGau}/>
+    
       <ul>
         <li>
           <Link to="/doctorhome"> Doctor Home</Link>
