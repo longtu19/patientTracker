@@ -1,0 +1,53 @@
+.info-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    margin-left: 15%;
+    margin-top: 5%;
+}
+
+.avatar {  
+    padding: 100px;
+    overflow: hidden;
+}
+
+.avatar img {
+    height: 200px;
+    width: 200px;
+    flex: 1;
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.info-text {
+    background-color:darkslateblue;
+    height: 300px;
+    width: 600px;
+    color: aliceblue;
+    text-align: left;
+    padding: 30px;
+    font-size: large;
+    border-radius: 50px;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    margin-left: 15%;
+    padding: 100px;
+    margin-right: 15%
+}
+
+.buttons Button {
+    border-radius: 10px;
+    height: 50px;
+    width: 30px;
+    flex:1;
+    background-color: cornflowerblue;
+    font-size: large;
+    margin-left: 35px;
+    margin-right: 35px;
+}
