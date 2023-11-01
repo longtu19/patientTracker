@@ -1,11 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from dotenv import load_dotenv
 import psycopg2
 import os
 from flask_bcrypt import Bcrypt
-from flask_cors import CORS
-
-from requests import *
+from flask_cors import CORS, cross_origin
+import json
 
 load_dotenv()
 app = Flask(__name__)
@@ -26,33 +25,37 @@ def index():
     return "Welcome"
 
 
-# object = {"email": "abc@gmail.com", "password": "123456", "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
-#     "birthday": "12/24/2002", "sex": "Male"}
+object = {"email": "abc@gmail.com", "password": '123456', "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
+     "birthday": "12/24/2002", "sex": "Male"}
 
 @app.route('/register', methods = ["POST", "GET"])
 def register():
     try:
         cur = conn.cursor()
-        email = request.form['email']
+        #email = request.form['email']
+        email = object['email']
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
             return jsonify({"Result": "Error", "Error": "Email is already registered"})
         else:
-            password = bcrypt.generate_password_hash(request.form['password'])
-            first_name = request.form['first_name']
-            last_name = request.form['last_name']
-            role = request.form['role']
+            #password = bcrypt.generate_password_hash(request.form['password'])
+            password = bcrypt.generate_password_hash(object['email']).decode("utf-8")
+            #first_name = request.form['first_name']
+            first_name = "Hi"
+            #last_name = request.form['last_name']
+            last_name = "Hello"
+            #role = request.form['role']
+            role = "patient"
             cur.execute("INSERT INTO system_user (email, password_hash, first_name, last_name, role) \
                VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
             conn.commit()
-
             cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
             get_cur_id = cur.fetchone()[0]
 
             if role == "patient":
-                birthday = request.form['birthday']
-                sex = request.form['sex']
+                birthday = "12/24/2002" #request.form['birthday']
+                sex = "Male" #request.form['sex']
 
                 #Insert into patients table
                 cur.execute("INSERT INTO patient (user_id, date_of_birth, sex) \
@@ -66,23 +69,22 @@ def register():
         print(e)
         
 @app.route('/login', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def login():
+    print("Request: ", request.json)
     try:
         cur = conn.cursor()
-        email = request.form['email']
-        password = request.form['password']
-        cur.execute("SELECT * FROM System_user WHERE email = %s", (email))
+        email = request.json['email']
+        password = request.json['password']
+        cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
         entry = cur.fetchone()
-        response = None
         if not entry:
-            response = jsonify({"Result": "Error", "Error": "Email is not registered"})
+            return jsonify({"Result": "Error", "Error": "Email is not registered"})
+        #print("Result: ", bcrypt.check_password_hash(entry[2], password))
+        if bcrypt.check_password_hash(entry[2], password):
+            return {"Result": "Success"}
         else:
-            if bcrypt.check_password_hash(entry[2], password):
-                response = jsonify({"Result": "Success"})
-            else:
-                response = jsonify({"Result": "Error", "Error": "Invalid Password!"})
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        return response
+            return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
         print(e)
 
