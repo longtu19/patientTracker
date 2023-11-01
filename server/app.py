@@ -73,13 +73,16 @@ def login():
         password = request.form['password']
         cur.execute("SELECT * FROM System_user WHERE email = %s", (email))
         entry = cur.fetchone()
+        response = None
         if not entry:
-            return jsonify({"Result": "Error", "Error": "Email is not registered"})
-
-        if bcrypt.check_password_hash(entry[2], password):
-            return jsonify({"Result": "Success"})
+            response = jsonify({"Result": "Error", "Error": "Email is not registered"})
         else:
-            return jsonify({"Result": "Error", "Error": "Invalid Password!"})
+            if bcrypt.check_password_hash(entry[2], password):
+                response = jsonify({"Result": "Success"})
+            else:
+                response = jsonify({"Result": "Error", "Error": "Invalid Password!"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
     except ValueError as e:
         print(e)
 
