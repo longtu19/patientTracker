@@ -38,7 +38,7 @@ def register():
         if exists:
             return jsonify({"Result": "Error", "Error": "Email is already registered"})
         else:
-            password = bcrypt.generate_password_hash(request.json['password'], 10).decode()
+            password = bcrypt.generate_password_hash(request.json['password'], 10).decode("utf-8")
             first_name = request.json['first_name']
             last_name = request.json['last_name']
             role = request.json['role']
