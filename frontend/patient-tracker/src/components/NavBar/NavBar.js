@@ -8,7 +8,13 @@ function NavBar() {
     <nav className="navbar-left">
       <ul>
         <li>
-          <Link to="/doctorHome">Home</Link>
+          <Link to="/doctorhome"> Doctor Home</Link>
+        </li>
+        <li>
+          <Link to="/patienthome"> Patient Home</Link>
+        </li>
+        <li>
+          <Link to="/doctorappointment">Appointments</Link>
         </li>
         <li>
           <Link to="/register">Create Account</Link>
