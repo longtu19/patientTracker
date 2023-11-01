@@ -9,8 +9,8 @@ from requests import *
 
 load_dotenv()
 app = Flask(__name__)
-cors = CORS(app)
 bcrypt = Bcrypt(app)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})  # Replace with your frontend's URL
 
 conn = psycopg2.connect(
     host = os.environ.get("ENDPOINT"),
