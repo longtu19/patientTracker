@@ -10,7 +10,8 @@ from requests import *
 load_dotenv()
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Replace with your frontend's URL
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 conn = psycopg2.connect(
     host = os.environ.get("ENDPOINT"),
