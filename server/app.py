@@ -39,15 +39,15 @@ def register():
             password = bcrypt.generate_password_hash(request.form['password'])
             first_name = request.form['first_name']
             last_name = request.form['last_name']
-            status = request.form['status']
+            role = request.form['role']
             cur.execute("INSERT INTO system_user (email, password_hash, first_name, last_name, role) \
-               VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, status))
+               VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
             conn.commit()
 
             cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
             get_cur_id = cur.fetchone()[0]
-            
-            if status == "patient":
+
+            if role == "patient":
                 birthday = request.form['birthday']
                 sex = request.form['sex']
 
