@@ -3,11 +3,13 @@ from dotenv import load_dotenv
 import psycopg2
 import os
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 
 from requests import *
 
 load_dotenv()
 app = Flask(__name__)
+cors = CORS(app)
 bcrypt = Bcrypt(app)
 
 conn = psycopg2.connect(
