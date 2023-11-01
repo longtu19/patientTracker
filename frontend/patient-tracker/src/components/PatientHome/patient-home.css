@@ -5,6 +5,7 @@
     align-self: stretch;
     margin-left: 15%;
     margin-top: 5%;
+    
 }
 
 .avatar {  
@@ -18,6 +19,7 @@
     flex: 1;
     border-radius: 100px;
     overflow: hidden;
+    box-shadow: 0 0 30px rgba(0,0,0,.5);
 }
 
 .info-text {
@@ -29,25 +31,38 @@
     padding: 30px;
     font-size: large;
     border-radius: 50px;
+    box-shadow: 0 0 30px rgba(0,0,0,.5);
 }
 
 .buttons {
     display: flex;
     flex-direction: row;
     align-items: center;
-    align-self: stretch;
+    align-self: end;
+    justify-content: center;
     margin-left: 15%;
-    padding: 100px;
-    margin-right: 15%
+    margin-right: 5%;
 }
 
 .buttons Button {
     border-radius: 10px;
-    height: 50px;
-    width: 30px;
-    flex:1;
+    flex: 1;
     background-color: cornflowerblue;
-    font-size: large;
-    margin-left: 35px;
-    margin-right: 35px;
+    font-size: medium;
+    align-content: space-around;
+}
+
+.uploadedFileInfo {
+    font-size: small;
+    width: 400px;
+}
+
+.uploadFileInput {
+    height: 50px;
+}
+
+.uploadButton {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
 }
