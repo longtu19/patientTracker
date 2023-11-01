@@ -62,7 +62,7 @@ def register():
     except ValueError as e:
         print(e)
         
-@app.route('/login', methods = ["POST"])
+@app.route('/login', methods = ["POST", "GET"])
 def login():
     try:
         cur = conn.cursor()
@@ -74,7 +74,6 @@ def login():
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
 
         if bcrypt.check_password_hash(entry[2], password):
-            conn.commit()
             return jsonify({"Result": "Success"})
         else:
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
