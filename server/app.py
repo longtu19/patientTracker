@@ -46,10 +46,7 @@ def register():
                VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
             conn.commit()
             cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
-            #get_cur_id = cur.fetchone()[0]
-            entry = cur.fetchone()
-            print("Result other", bcrypt.check_password_hash(entry[2], object['password']))
-            print(entry[2], password)
+            get_cur_id = cur.fetchone()[0]
 
             if role == "patient":
                 birthday = request.json['birthday']
@@ -57,9 +54,9 @@ def register():
 
                 #Insert into patients table
                 cur.execute("INSERT INTO patient (user_id, date_of_birth, sex) \
-                VALUES (%s, %s, %s)", (entry[0], birthday, sex))
+                VALUES (%s, %s, %s)", (get_cur_id, birthday, sex))
             else:
-                cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (entry[0]))
+                cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (get_cur_id, ))
             
             conn.commit()
             return jsonify({"Result": "Success"})
