@@ -25,43 +25,41 @@ def index():
     return "Welcome"
 
 
-object = {"email": "abc@gmail.com", "password": '123456', "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
-     "birthday": "12/24/2002", "sex": "Male"}
+# object = {"email": "abc@gmail.com", "password": '123456', "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
+#      "birthday": "12/24/2002", "sex": "Male"}
 
 @app.route('/register', methods = ["POST", "GET"])
 def register():
     try:
         cur = conn.cursor()
-        #email = request.form['email']
-        email = object['email']
+        email = request.json['email']
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
             return jsonify({"Result": "Error", "Error": "Email is already registered"})
         else:
-            #password = bcrypt.generate_password_hash(request.form['password'])
-            password = bcrypt.generate_password_hash(object['email']).decode("utf-8")
-            #first_name = request.form['first_name']
-            first_name = "Hi"
-            #last_name = request.form['last_name']
-            last_name = "Hello"
-            #role = request.form['role']
-            role = "patient"
+            password = bcrypt.generate_password_hash(request.json['password'], 10).decode()
+            first_name = request.json['first_name']
+            last_name = request.json['last_name']
+            role = request.json['role']
             cur.execute("INSERT INTO system_user (email, password_hash, first_name, last_name, role) \
                VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
             conn.commit()
             cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
-            get_cur_id = cur.fetchone()[0]
+            #get_cur_id = cur.fetchone()[0]
+            entry = cur.fetchone()
+            print("Result other", bcrypt.check_password_hash(entry[2], object['password']))
+            print(entry[2], password)
 
             if role == "patient":
-                birthday = "12/24/2002" #request.form['birthday']
-                sex = "Male" #request.form['sex']
+                birthday = request.json['birthday']
+                sex = request.json['sex']
 
                 #Insert into patients table
                 cur.execute("INSERT INTO patient (user_id, date_of_birth, sex) \
-                VALUES (%s, %s, %s)", (get_cur_id, birthday, sex))
+                VALUES (%s, %s, %s)", (entry[0], birthday, sex))
             else:
-                cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (get_cur_id))
+                cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (entry[0]))
             
             conn.commit()
             return jsonify({"Result": "Success"})
@@ -71,16 +69,14 @@ def register():
 @app.route('/login', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def login():
-    print("Request: ", request.json)
     try:
         cur = conn.cursor()
-        email = request.json['email']
-        password = request.json['password']
+        email = request.json.get('email')
+        password = request.json.get('password')
         cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
         entry = cur.fetchone()
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
-        #print("Result: ", bcrypt.check_password_hash(entry[2], password))
         if bcrypt.check_password_hash(entry[2], password):
             return {"Result": "Success"}
         else:
