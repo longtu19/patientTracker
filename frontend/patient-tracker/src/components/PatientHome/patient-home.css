@@ -18,12 +18,11 @@
     flex: 1;
     border-radius: 100px;
     overflow: hidden;
-
 }
 
 .info-text {
     background-color:darkslateblue;
-    height: 220px;
+    height: 300px;
     width: 600px;
     color: aliceblue;
     text-align: left;
@@ -51,5 +50,4 @@
     font-size: large;
     margin-left: 35px;
     margin-right: 35px;
-
 }
