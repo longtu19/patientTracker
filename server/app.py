@@ -29,6 +29,7 @@ def index():
 #      "birthday": "12/24/2002", "sex": "Male"}
 
 @app.route('/register', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def register():
     try:
         cur = conn.cursor()
