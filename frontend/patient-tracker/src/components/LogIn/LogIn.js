@@ -14,8 +14,7 @@ export default function LogIn(props) {
   const onPasswordChange = (event) => {
     setPassword(event.target.value);
   };
-  console.log(email)
-  console.log(password)
+
 
 
 
@@ -30,9 +29,10 @@ export default function LogIn(props) {
         "Content-Type": "application/json",
       },
     });
+    console.log('Here')
     const user = await response.json();
-    console.log(user)
-    if (response.ok) {
+   
+    if (user.Result === 'Success') {
 
       navigate("/doctorhome");
 
