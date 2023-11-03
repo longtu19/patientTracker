@@ -82,5 +82,38 @@ def login():
     except ValueError as e:
         print(e)
 
+#
+@app.route('/get_patient_data', methods=["GET"])
+@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+def get_patient_data():
+    try:
+        user_id = request.args.get('user_id')
+
+        cur = conn.cursor()
+        query = """
+                SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth
+                FROM patient u
+                JOIN patient p ON u.id = p.user_id
+                WHERE u.id = %s
+            """
+        cur.execute(query, (user_id,))
+        patient_data = cur.fetchone()
+        if patient_data:
+            return jsonify({
+                "Result": "Success",
+                "Data": {
+                    "first_name": patient_data[0],
+                    "last_name": patient_data[1],
+                    "height": patient_data[2],
+                    "weight": patient_data[3],
+                    "date_of_birth": patient_data[5],
+                }
+            })
+        else:
+            return jsonify({"Result": "Error", "Error": "User not found"})
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error", "Error": "An error occurred"})
+    
 if __name__ == "__main__":
     app.run(debug = True)
