@@ -35,7 +35,7 @@
     height: 50px;
     border-bottom: 2px  solid #162938;
     margin: 30px 0;
-    padding: 2px;;
+    padding: 2px;
     
     
   }
@@ -47,7 +47,7 @@
   .loginFlexbox {
     gap: 1.5rem;
     position: absolute;
-    left: 50%;
+    left: 55%;
     top: 45%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
@@ -142,4 +142,98 @@
       opacity: 100%;
     }
   }
+
+  /* Create Account UI/UX */
+
+  .createAccBox {
+    gap: 1.5rem;
+    position: absolute;
+    left: 57%;
+    top: 49%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width: 670px;
+    height: 750px;
+    border: 2px solid rgba(255,255,255, .5);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 30px rgba(0,0,0,.5);
+    padding: 2rem;
+
+  }
+
+  .createAccBox .createAccButton{
+    width: 80%;
+    height: 65px;
+    background: #4f1a27;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #D1E8E2;
+    font-weight: 500;
+
+  }
+
+  .createAccBox .createAccButton:hover{
+    color:  #D1E8E2;
+    background: #0b6a6a;
   
+  }
+
+  .role {
+    display: flex;
+    padding: 2px;
+    font-size: 22px;
+    margin: 30px 0;
+    margin-bottom: 2px;
+    padding: 0 30px 0 5px;
+   
+    
+  }
+  .role .youare{
+    float: left;
+    margin-right: 28%;
+    margin-left: 2%;
+    
+    
+  }
+  .role .option1{
+    margin-right: 12%;
+  }
+  .role .sex{
+    font-size: 21px;
+    float: left;
+    margin-right: 25%;
+    margin-left: 1%;
+    
+  }
+
+  .role .sex-choices div{
+    margin-right: 38px;
+    
+  }
+
+    
+  .createAccBox .ip input{
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0 30px 0 5px;
+    color:#19747E;
+    font-size: 25px;
+
+  }
+
+  .createAccBox .ip{
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px  solid #162938;
+    margin: 30px 0;
+    padding: 2px;
+    
+    
+  }
