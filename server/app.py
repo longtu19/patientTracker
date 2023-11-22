@@ -106,7 +106,7 @@ def get_patient_data():
                     "last_name": patient_data[1],
                     "height": patient_data[2],
                     "weight": patient_data[3],
-                    "date_of_birth": patient_data[5],
+                    "date_of_birth": patient_data[4],
                 }
             })
         else:
