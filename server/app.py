@@ -133,9 +133,10 @@ def get_patient_data():
         cur = conn.cursor()
         query = """
                 SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth
-                FROM patient u
-                JOIN patient p ON u.id = p.user_id
-                WHERE u.id = %s
+                FROM patient p
+                JOIN system_user u
+                ON p.user_id = u.user_id
+                WHERE u.user_id = %s;
             """
         cur.execute(query, (user_id,))
         patient_data = cur.fetchone()
