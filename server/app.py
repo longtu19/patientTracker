@@ -5,12 +5,29 @@ import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
 import json
+import datetime
+import boto3
 
 load_dotenv()
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 app.config['CORS_HEADERS'] = 'Content-Type'
+
+app.config['S3_BUCKET'] = os.environ.get("BUCKET_NAME")
+app.config['S3_KEY'] = os.environ.get("ACCESS_KEY")
+app.config['S3_SECRET'] = os.environ.get("SECRET_ACCESS_KEY")
+app.config['S3_REGION'] = os.environ.get("BUCKET_REGION")
+
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id = app.config['S3_KEY'],
+    aws_secret_access_key = app.config['S3_SECRET']
+)
+
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png'}
+def allowed_file(filename):
+    return '.' in filename and filename.split('.')[1].lower() in ALLOWED_EXTENSIONS
 
 conn = psycopg2.connect(
     host = os.environ.get("ENDPOINT"),
@@ -23,7 +40,6 @@ conn = psycopg2.connect(
 @app.route('/')
 def index():
     return "Welcome"
-
 
 # object = {"email": "abc@gmail.com", "password": '123456', "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
 #      "birthday": "12/24/2002", "sex": "Male"}
@@ -82,6 +98,30 @@ def login():
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
         print(e)
+
+
+@app.route('/upload_file', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def upload_file():
+    try:
+        # cur = conn.cursor()
+        # file = request.files['record']
+        # filename = file.filename
+        file = "/Users/phucnguyen02/Documents/Fall_2023/CS520/patientTracker/server/test.txt"
+        filename = "test.txt"
+        if allowed_file(filename):
+            # original_filename = request.json.get('original_filename')
+            # date = datetime.datetime.now()
+            # patient_id = request.json.get('patient_id')
+
+            s3.upload_file(
+                file, 
+                os.getenv("BUCKET_NAME"), 
+                filename
+            )
+    except ValueError as e:
+        print(e)
+    return 'ok'
 
 #
 @app.route('/get_patient_data', methods=["GET"])
