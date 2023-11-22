@@ -64,6 +64,7 @@ def register():
     except ValueError as e:
         print(e)
         
+
 @app.route('/login', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def login():
@@ -76,7 +77,7 @@ def login():
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
         if bcrypt.check_password_hash(entry[2], password):
-            return {"Result": "Success"}
+            return {"Result": "Success", "User_ID": entry[0]}
         else:
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
