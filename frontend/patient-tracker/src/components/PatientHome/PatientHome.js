@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import './patient-home.css'
 import { Button } from "reactstrap";
@@ -11,6 +11,25 @@ function update() {
 }
 
 function PatientHome(){
+    const [userId, setUserId] = useState(14);
+    const [patient, setPatient] = useState({});
+    useEffect(async () => {
+        const response = await fetch("http://127.0.0.1:5000/get_patient_data", {
+            method: "GET",
+            mode: "cors",
+            body: JSON.stringify({ userId: userId }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+        });
+        const result = await response.json();
+        if (result.Result === "Success"){
+            setPatient(result.Data);
+        }
+
+
+    })
     let [file, setFile] = React.useState({selectedFile: null})
     const onFileChange = event => {
         setFile({ selectedFile: event.target.files[0] });
@@ -64,11 +83,11 @@ function PatientHome(){
                         src="https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg" alt="cat" />
                     </div>
                     <div className='info-text'>
-                        <p>First Name:</p>
-                        <p>Last Name:</p>
-                        <p>Height:</p>
-                        <p>Weight:</p>
-                        <p>Date of birth:</p>
+                        <p>First Name: {patient.first_name}</p>
+                        <p>Last Name: {patient.last_name}</p>
+                        <p>Height: {patient.height}</p>
+                        <p>Weight: {patient.weight}</p>
+                        <p>Date of birth: {patient.date_of_birth}</p>
                         <p>Primary Care Physician:</p>
                     </div>
             </div>
