@@ -119,9 +119,10 @@ def upload_file():
                 os.getenv("BUCKET_NAME"), 
                 filename
             )
+            return jsonify({"Result": "Success"})
     except ValueError as e:
         print(e)
-    return 'ok'
+        return jsonify({"Result": "Error"})
 
 #
 @app.route('/get_patient_data', methods=["GET"])
