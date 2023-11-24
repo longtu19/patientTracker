@@ -130,7 +130,6 @@ def upload_file():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patient_data():
     try:
-        # user_id = request.args.get('user_id')
         user_id = request.json.get('user_id')
         cur = conn.cursor()
         query = """

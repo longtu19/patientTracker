@@ -11,13 +11,14 @@ function update() {
 }
 
 function PatientHome(){
-    const [userId, setUserId] = useState(14);
+    //const [userId, setUserId] = useState(14);
+    const userId = localStorage.getItem('user_id');
     const [patient, setPatient] = useState({});
     const testBE = async () => {
         const response = await fetch("http://127.0.0.1:5000/get_patient_data", {
             method: "POST",
             mode: "cors",
-            body: JSON.stringify({ userId: userId }),
+            body: JSON.stringify({ user_id: userId }),
             headers: {
               "Content-Type": "application/json",
             },
