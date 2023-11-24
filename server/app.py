@@ -84,12 +84,12 @@ def login():
         print(e)
 
 #
-@app.route('/get_patient_data', methods=["GET"])
+@app.route('/get_patient_data', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patient_data():
     try:
-        user_id = request.args.get('user_id')
-
+        # user_id = request.args.get('user_id')
+        user_id = request.json.get('user_id')
         cur = conn.cursor()
         query = """
                 SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth
