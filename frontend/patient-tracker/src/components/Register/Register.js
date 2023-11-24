@@ -4,14 +4,37 @@ import Cookies from "js-cookie";
 import { BrowserRouter, Route, useNavigate } from "react-router-dom";
 
 export default function Register() {
-  const [selectedRole, setSelectedRole] = useState("");
+  const [email, setEmail] = useState(null);
+  const [firstName, setFirstName] = useState(null);
+  const [lastName, setLastName] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [role, setRole] = useState(null);
+  const [birthday, setBirthday] = useState(null);
+  const [sex, setSex] = useState(null);
+
+  const handleEmail = event => {
+    setEmail(event.target.value);
+    console.log(email)
+  }
+
+  const handlePassword= event => {
+    setPassword(event.target.value);
+    console.log(password)
+  }
+
+  const handleSex = e => {
+    setSex(e.target.value)
+  }
+
+
   const navigate = useNavigate();
   const handleRegister = async () => {
 
     const response = await fetch("http://127.0.0.1:5000/register", {
       method: "POST",
       mode: "cors",
-      body: JSON.stringify({ email: email, 
+      body: JSON.stringify({ 
+        email: email, 
         password: password, 
         first_name:firstName, 
         last_name: lastName, 
@@ -28,7 +51,7 @@ export default function Register() {
     if (response.ok) {
       alert("Congrats!! Your account has been created")
 
-      navigate("/doctorhome");
+      navigate("/");
 
       
 
@@ -39,7 +62,7 @@ export default function Register() {
   };
 
   const handleRoleChange = (event) => {
-    setSelectedRole(event.target.value);
+    setRole(event.target.value);
   };
 
   return (
@@ -64,48 +87,48 @@ export default function Register() {
     
 
           <div className="ip">
-            <input type="text" placeholder="First Name" />
+            <input type="text" placeholder="First Name" onChange={e => setFirstName(e.target.value)} />
           </div>
 
           <div className="ip">
-            <input type="text" placeholder="Last Name" />
+            <input type="text" placeholder="Last Name"  onChange={e => setLastName(e.target.value)}/>
           </div>
        
 
           <div className="ip">
-            <input type="text" placeholder="Email" />
+            <input type="text" placeholder="Email" onChange={handleEmail} />
           </div>
           <div className="ip">
-            <input type="password" placeholder="Password" />
+            <input type="password" placeholder="Password" onChange={handlePassword} />
           </div>
 
-          {selectedRole === "patient" && (
+          {role === "patient" && (
             <div className="ip">
-              <input type="text" name="dob" placeholder="Birthday mm/dd/yyyy" pattern="\d{4}-\d{2}-\d{2}" required/>
+              <input type="text" name="dob" placeholder="Birthday mm/dd/yyyy" pattern="\d{4}-\d{2}-\d{2}" onChange={e => setBirthday(e.target.value)} required/>
             </div>
           )}
 
 
 
-          {selectedRole === "patient" && <div className="role">
+          {role === "patient" && <div className="role">
             <div className="sex">Sex</div>
             <div className="sex-choices">
               <div className="form-check form-check-inline ">
-                <input class="form-check-input" type="radio" value="male" name="sex" />
+                <input class="form-check-input" type="radio" value="male" name="sex" onChange={handleSex} />
                 <label className="form-check-label" for="inlineCheckbox1"> Male </label>
               </div>
               <div className="form-check form-check-inline">
-                <input class="form-check-input" type="radio" value="female" name="sex"/>
+                <input class="form-check-input" type="radio" value="female" name="sex" onChange = {handleSex}/>
                 <label className="form-check-label" for="inlineCheckbox2"> Female </label>
               </div>
               <div className="form-check form-check-inline">
-                <input class="form-check-input" type="radio" value="other" name="sex" />
+                <input class="form-check-input" type="radio" value="other" name="sex" onChange = {handleSex} />
                 <label className="form-check-label" for="inlineCheckbox2"> Other </label>
               </div>
             </div>
           </div>}
 
-          <button className="createAccButton mt-4">Create Account</button>
+          <button className="createAccButton mt-4" onClick={handleRegister}>Create Account</button>
         </div>
       </div>
     </div>

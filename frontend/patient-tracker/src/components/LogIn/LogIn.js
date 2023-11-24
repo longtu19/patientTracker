@@ -34,7 +34,7 @@ export default function LogIn(props) {
    
     if (user.Result === 'Success') {
 
-      navigate("/doctorhome");
+      navigate("/patienthome");
 
       
 

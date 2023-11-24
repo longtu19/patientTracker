@@ -34,6 +34,8 @@ def register():
     try:
         cur = conn.cursor()
         email = request.json['email']
+        print("PATRICCCCC")
+        print(email)
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
@@ -84,12 +86,13 @@ def login():
         print(e)
 
 #
-@app.route('/get_patient_data', methods=["GET"])
+@app.route('/get_patient_data', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patient_data():
     try:
         user_id = request.args.get('user_id')
-
+        print("HERRRRRRR")
+        print(user_id)
         cur = conn.cursor()
         query = """
                 SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth

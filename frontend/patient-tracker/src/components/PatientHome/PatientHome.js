@@ -13,9 +13,9 @@ function update() {
 function PatientHome(){
     const [userId, setUserId] = useState(14);
     const [patient, setPatient] = useState({});
-    useEffect(async () => {
+    const testBE = async () => {
         const response = await fetch("http://127.0.0.1:5000/get_patient_data", {
-            method: "GET",
+            method: "POST",
             mode: "cors",
             body: JSON.stringify({ userId: userId }),
             headers: {
@@ -24,12 +24,13 @@ function PatientHome(){
 
         });
         const result = await response.json();
+        console.log(result)
         if (result.Result === "Success"){
             setPatient(result.Data);
         }
 
 
-    })
+    }
     let [file, setFile] = React.useState({selectedFile: null})
     const onFileChange = event => {
         setFile({ selectedFile: event.target.files[0] });
@@ -77,6 +78,9 @@ function PatientHome(){
 
     return (
         <div>
+            <div>
+                <Button onClick={testBE}>Test</Button>
+            </div>
             <div className='info-card'>
                     <div className='avatar'>
                         <img
