@@ -1,32 +1,49 @@
 import React from "react";
-import { Link } from 'react-router-dom';
-import './navbar.css'
-import doctorGau from "../../Images/doctorGau.png"
-
+import { Link } from "react-router-dom";
+import "./navbar.css";
+import doctorGau from "../../Images/doctorGau.png";
+import { useNavigate } from "react-router-dom";
 
 function NavBar() {
+  const navigate = useNavigate();
+  const user_role = localStorage.getItem("user_role");
+  const handleLogOut = () => {
+    localStorage.removeItem("user_role");
+    localStorage.removeItem("user_id");
+    navigate("/");
+  };
   return (
     <nav className="navbar-left">
-      <img className = "gaupic"src = {doctorGau}/>
-    
+      <img className="gaupic" src={doctorGau} />
+
       <ul>
-        <li>
-          <Link to="/doctorhome"> Doctor Home</Link>
-        </li>
-        <li>
-          <Link to="/patienthome"> Patient Home</Link>
-        </li>
-        <li>
+        {user_role === "doctor" && (
+          <li>
+            <Link to="/doctorhome"> Doctor Home</Link>
+          </li>
+        )}
+        {user_role === "patient" && (
+          <li>
+            <Link to="/patienthome"> Patient Home</Link>
+          </li>
+        )}
+        {user_role !== null && <li>
           <Link to="/doctorappointment">Appointments</Link>
-        </li>
-        <li>
-          <Link to="/register">Create Account</Link>
-        </li>
-        <li>
-          <Link to="/">Log Out</Link>
-        </li>
-      
-  
+        </li>}
+        {user_role === null && (
+          <li>
+            <Link to="/register">Create Account</Link>
+          </li>
+        )}
+          {user_role === null && (
+          <li>
+            <Link to="/">Log In</Link>
+          </li>
+        )}
+      {user_role !== null &&  <li>
+          <button onClick={handleLogOut}>Log out</button>
+        </li>}
+
         {/* Add more navigation links */}
       </ul>
     </nav>

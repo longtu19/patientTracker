@@ -8,18 +8,24 @@ import DoctorAppointment from "./components/DocApt/DoctorAppointment";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar/NavBar";
 import { Nav } from "reactstrap";
+import ProtectedRoute from "../src/components/ProtectedRoute/ProtectedRoute";
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        <NavBar/>
+        <NavBar />
         <Routes>
-          <Route path="/" element={<LogIn />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<LogIn />} />
+          </Route>
           <Route path="/register" element={<Register />} />
-          <Route path="/doctorhome" element={<DoctorHome />} />
-          <Route path="/doctorappointment" element={<DoctorAppointment />} />
-          <Route path="/patienthome" element={<PatientHome />} />
+          <Route element= {<PrivateRoute/>}>
+            <Route path="/doctorhome" element={<DoctorHome />} />
+            <Route path="/doctorappointment" element={<DoctorAppointment />} />
+            <Route path="/patienthome" element={<PatientHome />} />
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>

@@ -26,9 +26,10 @@ export default function DoctorHome() {
   let [firstname, setFirstname] = React.useState("");
   let [lastname, setLastname] = React.useState("");
   let [datevalue, setDate] = React.useState("");
-  let [patLst, setPatLst] = React.useState(patients);
+  let [patLst, setPatLst] = React.useState([]);
   let [selectedPat, setSelectedPat] = React.useState(null);
   let [count, setCount] = React.useState(patLst.length);
+
 
 
   useEffect(() => {
@@ -45,7 +46,11 @@ export default function DoctorHome() {
         const result = await response.json();
         console.log(result);
         if (result.Result === "Success") {
-          setPatLst(result.Data);
+          if (result.Data !== null){
+            setPatLst(result.Data);
+
+          }
+          
         }
       } catch (error) {
         alert(error);
@@ -54,6 +59,7 @@ export default function DoctorHome() {
 
     fetchDate()
   }, [userId]);
+
 
   const filteredPat = patLst.filter(
     (item) =>
@@ -121,8 +127,13 @@ export default function DoctorHome() {
 
             <div className="  d-flex justify-content-center ">
               <div className="list-container">
+                {filteredPat.length === 0 && 
+                  <div>
+                    No patients assigned yet!
+
+                  </div>}
                 <ul className="list-group em_list">
-                  {filteredPat.map((pat) => (
+                  {filteredPat && filteredPat.map((pat) => (
                     <li className="list-group-item em btn">
                       <p>
                         {pat.first} {pat.last}
