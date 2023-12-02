@@ -158,5 +158,29 @@ def get_patient_data():
         print(e)
         return jsonify({"Result": "Error", "Error": "An error occurred"})
     
+#
+@app.route('/get_patients_by_doctor_id', methods=["POST", "GET"])
+@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+def get_patients_by_doctor_id():
+    try:
+        doctor_id = request.json.get('user_id')
+        cur = conn.cursor()
+
+        query = """
+                SELECT u.first_name, u.last_name, u.user_id
+                FROM patient p
+                JOIN system_user u
+                ON p.user_id = u.user_id
+                WHERE u.primary_care_doctor_id = %s;
+            """
+        cur.execute(query, (doctor_id,))
+        patient_data = cur.fetchone()
+        return jsonify({
+            "Result": "Success",
+            "Data": patient_data
+        })
+    except Exception as e:
+        print(e)
+
 if __name__ == "__main__":
     app.run(debug = True)
