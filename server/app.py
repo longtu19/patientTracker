@@ -4,11 +4,10 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-import json
 import datetime
-import boto3
 from werkzeug.utils import secure_filename
-from file_handler import allowed_file, upload_file_to_s3
+from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
+from collections import defaultdict
 import random
 
 load_dotenv()
@@ -98,29 +97,61 @@ def login():
     except ValueError as e:
         print(e)
 
-
 @app.route('/upload_file', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def upload_file():
     try:
-        # cur = conn.cursor()
-        # file = request.files['record']
-        # filename = file.filename
-        file = os.environ.get("TEST_FILE")
-        filename = "test.txt"
+        cur = conn.cursor()
+        file = request.files['record']
+        filename = file.filename
+        # file = os.environ.get("TEST_FILE")
+        # filename = "test.txt"
         if filename and allowed_file(filename):
-            # original_filename = request.json.get('original_filename')
-            # date = datetime.datetime.now()
-            # patient_id = request.json.get('patient_id')
+            patient_id = request.json.get('patient_id')
+            #patient_id = 12
 
             provided_filename = secure_filename(filename)
             stored_filename = upload_file_to_s3(file, filename)
             if stored_filename:
-                print(provided_filename, stored_filename)
+                print(stored_filename)
+                date = datetime.datetime.now()
+                query = """ 
+                        INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
+                        VALUES (%s, %s, %s, %s)
+                    """
+                cur.execute(query, (provided_filename, stored_filename, patient_id, date, ))
+                conn.commit()
                 return jsonify({"Result": "Success"})
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
+
+
+@app.route('/get_file_urls', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def get_file_urls():
+    try:
+        cur = conn.cursor()
+        patient_id = request.json.get('patient_id')
+        query = """
+                SELECT provided_filename, stored_filename
+                FROM medical_record
+                WHERE patient_id = %s
+            """
+        cur.execute(query, (patient_id, ))
+        file_list = cur.fetchall()
+        result = defaultdict(str)
+        for file in file_list:
+            provided = file[0]
+            stored = file[1]
+            url = get_presigned_file_url(stored, provided)
+            result[provided] = url
+        return jsonify(result)
+
+    except ValueError as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+
 
 #
 @app.route('/get_patient_data', methods=["POST", "GET"])

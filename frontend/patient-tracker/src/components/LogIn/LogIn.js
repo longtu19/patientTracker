@@ -35,8 +35,15 @@ export default function LogIn(props) {
     if (user.Result === 'Success') {
 
       localStorage.setItem('user_id', user.User_ID)
+      localStorage.setItem('user_role', user.Role)
+      if (user.Role === "patient"){
+        navigate("/patienthome");
 
-      navigate("/patienthome");
+      }
+      else {
+        navigate("/doctorhome")
+      }
+      
 
       
 
