@@ -90,12 +90,12 @@ def login():
         cur = conn.cursor()
         email = request.json.get('email')
         password = request.json.get('password')
-        cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
+        cur.execute("SELECT user_id, role, password_hash FROM System_user WHERE email = %s", (email, ))
         entry = cur.fetchone()
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
         if bcrypt.check_password_hash(entry[2], password):
-            return {"Result": "Success", "User_ID": entry[0]}
+            return {"Result": "Success", "User_ID": entry[0], "Role": entry[1]}
         else:
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
