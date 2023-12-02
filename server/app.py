@@ -50,6 +50,8 @@ def register():
     try:
         cur = conn.cursor()
         email = request.json['email']
+        print("PATRICCCCC")
+        print(email)
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
@@ -125,12 +127,11 @@ def upload_file():
         return jsonify({"Result": "Error"})
 
 #
-@app.route('/get_patient_data', methods=["GET"])
+@app.route('/get_patient_data', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patient_data():
     try:
-        user_id = request.args.get('user_id')
-
+        user_id = request.json.get('user_id')
         cur = conn.cursor()
         query = """
                 SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth
@@ -149,7 +150,7 @@ def get_patient_data():
                     "last_name": patient_data[1],
                     "height": patient_data[2],
                     "weight": patient_data[3],
-                    "date_of_birth": patient_data[4],
+                    "date_of_birth": patient_data[4].strftime('%Y-%m-%d')
                 }
             })
         else:

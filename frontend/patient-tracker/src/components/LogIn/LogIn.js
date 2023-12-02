@@ -34,7 +34,9 @@ export default function LogIn(props) {
    
     if (user.Result === 'Success') {
 
-      navigate("/doctorhome");
+      localStorage.setItem('user_id', user.User_ID)
+
+      navigate("/patienthome");
 
       
 
