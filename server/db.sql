@@ -33,9 +33,9 @@ CREATE TABLE Doctor (
 CREATE TABLE Medical_record (
     record_id SERIAL PRIMARY KEY,
     patient_id INT REFERENCES Patient(patient_id) ON DELETE CASCADE,
-    type VARCHAR(255) NOT NULL,
-    date DATE,
-    file_link TEXT
+    stored_filename VARCHAR(255) NOT NULL,
+    provided_filename VARCHAR(255) NOT NULL,
+    date DATE
 );
 
 -- Appointment Table
