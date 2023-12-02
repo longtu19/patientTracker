@@ -88,25 +88,31 @@ def login():
     except ValueError as e:
         print(e)
 
-
 @app.route('/upload_file', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def upload_file():
     try:
-        # cur = conn.cursor()
+        cur = conn.cursor()
         # file = request.files['record']
         # filename = file.filename
         file = os.environ.get("TEST_FILE")
         filename = "test.txt"
         if filename and allowed_file(filename):
-            # original_filename = request.json.get('original_filename')
             # date = datetime.datetime.now()
-            # patient_id = request.json.get('patient_id')
+            #patient_id = request.json.get('patient_id')
+            patient_id = 12
 
             provided_filename = secure_filename(filename)
             stored_filename = upload_file_to_s3(file, filename)
             if stored_filename:
                 print(stored_filename)
+                date = datetime.datetime.now()
+                query = """ 
+                        INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
+                        VALUES (%s, %s, %s, %s)
+                    """
+                cur.execute(query, (provided_filename, stored_filename, patient_id, date, ))
+                conn.commit()
                 return jsonify({"Result": "Success"})
     except ValueError as e:
         print(e)
