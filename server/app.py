@@ -4,11 +4,10 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-import json
 import datetime
-import boto3
 from werkzeug.utils import secure_filename
-from file_handler import allowed_file, upload_file_to_s3
+from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
+from collections import defaultdict
 
 load_dotenv()
 app = Flask(__name__)
@@ -117,6 +116,33 @@ def upload_file():
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
+
+
+@app.route('/get_file_urls', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def get_file_urls():
+    try:
+        cur = conn.cursor()
+        patient_id = 12
+        query = """
+                SELECT provided_filename, stored_filename
+                FROM medical_record
+                WHERE patient_id = %s
+            """
+        cur.execute(query, (patient_id, ))
+        file_list = cur.fetchall()
+        result = defaultdict(str)
+        for file in file_list:
+            provided = file[0]
+            stored = file[1]
+            url = get_presigned_file_url(stored, provided)
+            result[provided] = url
+        return jsonify(result)
+
+    except ValueError as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+
 
 #
 @app.route('/get_patient_data', methods=["POST", "GET"])
