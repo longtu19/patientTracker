@@ -8,6 +8,7 @@ import datetime
 from werkzeug.utils import secure_filename
 from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
 from collections import defaultdict
+import random
 
 load_dotenv()
 app = Flask(__name__)
@@ -57,9 +58,18 @@ def register():
                 birthday = request.json['birthday']
                 sex = request.json['sex']
 
+                cur.execute("SELECT DISTINCT doctor_id FROM doctor;")
+                doctor_id_list = cur.fetchone()[0]
+
+                if not doctor_id_list:
+                    primary_care_doctor_id = None
+                else:
+                    primary_care_doctor_id = doctor_id_list(random.randint(0, len(doctor_id_list)))
+            
+
                 #Insert into patients table
-                cur.execute("INSERT INTO patient (user_id, date_of_birth, sex) \
-                VALUES (%s, %s, %s)", (get_cur_id, birthday, sex))
+                cur.execute("INSERT INTO patient (user_id, date_of_birth, sex, primary_care_doctor_id) \
+                VALUES (%s, %s, %s, %s)", (get_cur_id, birthday, sex, primary_care_doctor_id))
             else:
                 cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (get_cur_id, ))
             
