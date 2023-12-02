@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect, useState } from "react";
 import "./doctorhome.css";
 import { patients } from "./patients_db";
 import { v4 as uuid } from "uuid";
@@ -16,6 +17,8 @@ import {
 } from "reactstrap";
 
 export default function DoctorHome() {
+  const userId = localStorage.getItem("user_id");
+
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -26,6 +29,31 @@ export default function DoctorHome() {
   let [patLst, setPatLst] = React.useState(patients);
   let [selectedPat, setSelectedPat] = React.useState(null);
   let [count, setCount] = React.useState(patLst.length);
+
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/get_patients_by_doctor_id", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ user_id: userId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        console.log(result);
+        if (result.Result === "Success") {
+          setPatLst(result.Data);
+        }
+      } catch (error) {
+        alert(error);
+      }
+    };
+
+    fetchDate()
+  }, [userId]);
 
   const filteredPat = patLst.filter(
     (item) =>
