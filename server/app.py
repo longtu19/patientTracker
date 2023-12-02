@@ -90,12 +90,12 @@ def login():
         cur = conn.cursor()
         email = request.json.get('email')
         password = request.json.get('password')
-        cur.execute("SELECT * FROM System_user WHERE email = %s", (email, ))
+        cur.execute("SELECT user_id, role, password_hash FROM System_user WHERE email = %s", (email, ))
         entry = cur.fetchone()
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
         if bcrypt.check_password_hash(entry[2], password):
-            return {"Result": "Success", "User_ID": entry[0]}
+            return {"Result": "Success", "User_ID": entry[0], "Role": entry[1]}
         else:
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
@@ -172,7 +172,7 @@ def get_patients_by_doctor_id():
                 FROM patient p
                 JOIN system_user u
                 ON p.user_id = u.user_id
-                WHERE u.primary_care_doctor_id = %s;
+                WHERE p.primary_care_doctor_id = %s;
             """
         cur.execute(query, (doctor_id,))
         patient_data = cur.fetchone()
