@@ -168,7 +168,11 @@ def get_patients_by_doctor_id():
                 FROM patient p
                 JOIN system_user u
                 ON p.user_id = u.user_id
-                WHERE p.primary_care_doctor_id = %s;
+                WHERE p.primary_care_doctor_id = (
+                    SELECT doctor_id
+                    FROM doctor
+                    WHERE user_id = %s
+                );
             """
         cur.execute(query, (doctor_id,))
         patient_data = cur.fetchone()
