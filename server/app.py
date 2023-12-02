@@ -106,7 +106,7 @@ def upload_file():
             provided_filename = secure_filename(filename)
             stored_filename = upload_file_to_s3(file, filename)
             if stored_filename:
-                print(stored_filename)
+                print(provided_filename, stored_filename)
                 return jsonify({"Result": "Success"})
     except ValueError as e:
         print(e)
