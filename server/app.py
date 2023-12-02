@@ -7,27 +7,14 @@ from flask_cors import CORS, cross_origin
 import json
 import datetime
 import boto3
+from werkzeug.utils import secure_filename
+from file_handler import allowed_file, upload_file_to_s3
 
 load_dotenv()
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 app.config['CORS_HEADERS'] = 'Content-Type'
-
-app.config['S3_BUCKET'] = os.environ.get("BUCKET_NAME")
-app.config['S3_KEY'] = os.environ.get("ACCESS_KEY")
-app.config['S3_SECRET'] = os.environ.get("SECRET_ACCESS_KEY")
-app.config['S3_REGION'] = os.environ.get("BUCKET_REGION")
-
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id = app.config['S3_KEY'],
-    aws_secret_access_key = app.config['S3_SECRET']
-)
-
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png'}
-def allowed_file(filename):
-    return '.' in filename and filename.split('.')[1].lower() in ALLOWED_EXTENSIONS
 
 conn = psycopg2.connect(
     host = os.environ.get("ENDPOINT"),
@@ -109,19 +96,18 @@ def upload_file():
         # cur = conn.cursor()
         # file = request.files['record']
         # filename = file.filename
-        file = "/Users/phucnguyen02/Documents/Fall_2023/CS520/patientTracker/server/test.txt"
+        file = os.environ.get("TEST_FILE")
         filename = "test.txt"
-        if allowed_file(filename):
+        if filename and allowed_file(filename):
             # original_filename = request.json.get('original_filename')
             # date = datetime.datetime.now()
             # patient_id = request.json.get('patient_id')
 
-            s3.upload_file(
-                file, 
-                os.getenv("BUCKET_NAME"), 
-                filename
-            )
-            return jsonify({"Result": "Success"})
+            provided_filename = secure_filename(filename)
+            stored_filename = upload_file_to_s3(file, filename)
+            if stored_filename:
+                print(stored_filename)
+                return jsonify({"Result": "Success"})
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
