@@ -4,7 +4,7 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-import datetime
+from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
 from collections import defaultdict
@@ -114,7 +114,7 @@ def upload_file():
             stored_filename = upload_file_to_s3(file, filename)
             if stored_filename:
                 print(stored_filename)
-                date = datetime.datetime.now()
+                date = datetime.now()
                 query = """ 
                         INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
                         VALUES (%s, %s, %s, %s)
@@ -185,7 +185,7 @@ def get_patient_data():
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error", "Error": "An error occurred"})
-    
+ 
 #
 @app.route('/get_patients_by_doctor_id', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -213,6 +213,24 @@ def get_patients_by_doctor_id():
         })
     except Exception as e:
         print(e)
+
+
+@app.route('/get_available_times', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def get_available_times():
+    try:
+        #date = request.get_json("date")
+        date = '2023-12-02'
+        cur_date = datetime.strptime('2023-12-02', '%Y-%m-%d')
+        date_list = [cur_date]
+        for i in range(1, 4):
+            date_list.append(datetime.strptime(date, '%Y-%m-%d') - timedelta(i))
+            date_list.append(datetime.strptime(date, '%Y-%m-%d') + timedelta(i))
+        return "Hello world"
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+    
 
 if __name__ == "__main__":
     app.run(debug = True)
