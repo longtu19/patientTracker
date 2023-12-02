@@ -92,14 +92,13 @@ def login():
 def upload_file():
     try:
         cur = conn.cursor()
-        # file = request.files['record']
-        # filename = file.filename
-        file = os.environ.get("TEST_FILE")
-        filename = "test.txt"
+        file = request.files['record']
+        filename = file.filename
+        # file = os.environ.get("TEST_FILE")
+        # filename = "test.txt"
         if filename and allowed_file(filename):
-            # date = datetime.datetime.now()
-            #patient_id = request.json.get('patient_id')
-            patient_id = 12
+            patient_id = request.json.get('patient_id')
+            #patient_id = 12
 
             provided_filename = secure_filename(filename)
             stored_filename = upload_file_to_s3(file, filename)
@@ -123,7 +122,7 @@ def upload_file():
 def get_file_urls():
     try:
         cur = conn.cursor()
-        patient_id = 12
+        patient_id = request.json.get('patient_id')
         query = """
                 SELECT provided_filename, stored_filename
                 FROM medical_record
