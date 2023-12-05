@@ -6,9 +6,11 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
-from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
 from collections import defaultdict
 import random
+
+from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
+from appointment_handler import available_times_in_week
 
 load_dotenv()
 app = Flask(__name__)
@@ -215,17 +217,27 @@ def get_patients_by_doctor_id():
         print(e)
 
 
-@app.route('/get_available_times', methods = ["POST", "GET"])
+@app.route('/get_appointment_times', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
-def get_available_times():
+def get_appointment_times():
     try:
         #date = request.get_json("date")
         date = '2023-12-02'
         cur_date = datetime.strptime('2023-12-02', '%Y-%m-%d')
         date_list = [cur_date]
+        weekdays = [cur_date.weekday()]
+        
+        available_week_times = available_times_in_week(request.get_json("doctor_id"))
+
         for i in range(1, 4):
-            date_list.append(datetime.strptime(date, '%Y-%m-%d') - timedelta(i))
-            date_list.append(datetime.strptime(date, '%Y-%m-%d') + timedelta(i))
+            before = datetime.strptime(date, '%Y-%m-%d') - timedelta(i)
+            date_list = [before] + date_list
+            weekdays = [before.weekday()] + weekdays
+
+            after = datetime.strptime(date, '%Y-%m-%d') + timedelta(i)
+            date_list.append(after)
+            weekdays.append(after.weekday())
+        
         return "Hello world"
     except Exception as e:
         print(e)
