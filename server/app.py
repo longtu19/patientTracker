@@ -60,12 +60,11 @@ def register():
 
                 cur.execute("SELECT DISTINCT doctor_id FROM doctor;")
                 doctor_id_list = cur.fetchall()
-                print(doctor_id_list)
 
                 if not doctor_id_list:
                     primary_care_doctor_id = None
                 else:
-                    primary_care_doctor_id = doctor_id_list[random.randint(0, len(doctor_id_list))]
+                    primary_care_doctor_id = doctor_id_list[random.randint(0, len(doctor_id_list)-1)]
             
 
                 #Insert into patients table
@@ -163,15 +162,36 @@ def get_patient_data():
     try:
         user_id = request.json.get('user_id')
         cur = conn.cursor()
-        query = """
-                SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth
+        get_user_info_query = """
+                SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth, p.primary_care_doctor_id
                 FROM patient p
                 JOIN system_user u
                 ON p.user_id = u.user_id
                 WHERE u.user_id = %s;
             """
-        cur.execute(query, (user_id,))
+        cur.execute(get_user_info_query, (user_id,))
         patient_data = cur.fetchone()
+
+        doctor_id = patient_data[5]
+        doctor_first_name = None
+        doctor_last_name = None
+        if doctor_id is not None:
+            get_doctor_name_query = """
+                    SELECT u.first_name, u.last_name
+                    FROM doctor d
+                    JOIN system_user u
+                    ON d.user_id = u.user_id
+                    WHERE u.user_id = (
+                        SELECT user_id
+                        FROM doctor
+                        WHERE doctor_id = %s
+                    );
+                """
+            cur.execute(get_doctor_name_query, (doctor_id,))
+            doctor_name = cur.fetchone()
+            doctor_first_name = doctor_name[0]
+            doctor_last_name = doctor_name[1]
+            
         if patient_data:
             return jsonify({
                 "Result": "Success",
@@ -180,7 +200,9 @@ def get_patient_data():
                     "last_name": patient_data[1],
                     "height": patient_data[2],
                     "weight": patient_data[3],
-                    "date_of_birth": patient_data[4].strftime('%Y-%m-%d')
+                    "date_of_birth": patient_data[4].strftime('%Y-%m-%d'),
+                    "primary_care_doctor_first_name": doctor_first_name,
+                    "primary_care_doctoc_last_name": doctor_last_name
                 }
             })
         else:
@@ -194,7 +216,7 @@ def get_patient_data():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patients_by_doctor_id():
     try:
-        doctor_id = request.json.get('user_id')
+        user_id = request.json.get('user_id')
         cur = conn.cursor()
 
         query = """
@@ -208,15 +230,13 @@ def get_patients_by_doctor_id():
                     WHERE user_id = %s
                 );
             """
-        cur.execute(query, (doctor_id,))
+        cur.execute(query, (user_id,))
         patient_data = cur.fetchall()
-        print(patient_data)
         return jsonify({
             "Result": "Success",
             "Data": patient_data
         })
     except Exception as e:
-        print("RIGHTTTTTTT HAND")
         print(e)
 
 
