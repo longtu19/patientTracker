@@ -10,7 +10,7 @@ from collections import defaultdict
 import random
 
 from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
-from appointment_handler import available_times_in_week
+from appointment_handler import available_times_in_week, get_seven_days
 
 load_dotenv()
 app = Flask(__name__)
@@ -223,20 +223,8 @@ def get_appointment_times():
     try:
         #date = request.get_json("date")
         date = '2023-12-02'
-        cur_date = datetime.strptime('2023-12-02', '%Y-%m-%d')
-        date_list = [cur_date]
-        weekdays = [cur_date.weekday()]
-        
         available_week_times = available_times_in_week(request.get_json("doctor_id"))
-
-        for i in range(1, 4):
-            before = datetime.strptime(date, '%Y-%m-%d') - timedelta(i)
-            date_list = [before] + date_list
-            weekdays = [before.weekday()] + weekdays
-
-            after = datetime.strptime(date, '%Y-%m-%d') + timedelta(i)
-            date_list.append(after)
-            weekdays.append(after.weekday())
+        date_list, weekday_list = get_seven_days(date)
         
         return "Hello world"
     except Exception as e:
