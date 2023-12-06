@@ -4,7 +4,7 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
@@ -39,7 +39,6 @@ def register():
     try:
         cur = conn.cursor()
         email = request.json['email']
-        print("PATRICCCCC")
         print(email)
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
@@ -233,7 +232,6 @@ def get_appointment_times():
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})
-    
 
 if __name__ == "__main__":
     app.run(debug = True)
