@@ -59,12 +59,13 @@ def register():
                 sex = request.json['sex']
 
                 cur.execute("SELECT DISTINCT doctor_id FROM doctor;")
-                doctor_id_list = cur.fetchone()[0]
+                doctor_id_list = cur.fetchall()
+                print(doctor_id_list)
 
                 if not doctor_id_list:
                     primary_care_doctor_id = None
                 else:
-                    primary_care_doctor_id = doctor_id_list(random.randint(0, len(doctor_id_list)))
+                    primary_care_doctor_id = doctor_id_list[random.randint(0, len(doctor_id_list))]
             
 
                 #Insert into patients table
