@@ -39,7 +39,6 @@ def register():
     try:
         cur = conn.cursor()
         email = request.json['email']
-        print(email)
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
@@ -61,7 +60,6 @@ def register():
 
                 cur.execute("SELECT DISTINCT doctor_id FROM doctor;")
                 doctor_id_list = cur.fetchall()
-                print(doctor_id_list)
 
                 if not doctor_id_list:
                     primary_care_doctor_id = None

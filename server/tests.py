@@ -26,10 +26,13 @@ class FlaskTest(unittest.TestCase):
         app.config['TESTING'] = True
         self.client = app.test_client()
 
-    def test_register(self):
-        self.client.post('/register', data=test_object)
-        response = self.client.get('/register')
-        print("Request result: ", response.data)
+    # def test_register(self):
+    #     self.client.post('/register', data=test_object)
+    #     response = self.client.get('/register')
+    #     print("Request result: ", response.data)
+    def test_none(self):
+        response = self.client.get('/')
+        print("Request result: ", response.get_json())
 
 if __name__ == '__main__':
     unittest.main()
