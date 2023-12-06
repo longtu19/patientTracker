@@ -65,7 +65,7 @@ def register():
                 if not doctor_id_list:
                     primary_care_doctor_id = None
                 else:
-                    primary_care_doctor_id = doctor_id_list[random.randint(0, len(doctor_id_list))]
+                    primary_care_doctor_id = doctor_id_list[random.randint(0, len(doctor_id_list)-1)]
             
 
                 #Insert into patients table
