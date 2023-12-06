@@ -4,11 +4,13 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-import datetime
+from datetime import datetime
 from werkzeug.utils import secure_filename
-from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
 from collections import defaultdict
 import random
+
+from file_handler import FileHandler
+from appointment_handler import AppointmentHandler
 
 load_dotenv()
 app = Flask(__name__)
@@ -102,20 +104,21 @@ def login():
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def upload_file():
     try:
+        file_handler = FileHandler()
         cur = conn.cursor()
         file = request.files['record']
         filename = file.filename
         # file = os.environ.get("TEST_FILE")
         # filename = "test.txt"
-        if filename and allowed_file(filename):
+        if filename and file_handler.allowed_file(filename):
             patient_id = request.json.get('patient_id')
             #patient_id = 12
 
             provided_filename = secure_filename(filename)
-            stored_filename = upload_file_to_s3(file, filename)
+            stored_filename = file_handler.upload_file_to_s3(file, filename)
             if stored_filename:
                 print(stored_filename)
-                date = datetime.datetime.now()
+                date = datetime.now()
                 query = """ 
                         INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
                         VALUES (%s, %s, %s, %s)
@@ -132,6 +135,7 @@ def upload_file():
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_file_urls():
     try:
+        file_handler = FileHandler()
         cur = conn.cursor()
         patient_id = request.json.get('patient_id')
         query = """
@@ -145,7 +149,7 @@ def get_file_urls():
         for file in file_list:
             provided = file[0]
             stored = file[1]
-            url = get_presigned_file_url(stored, provided)
+            url = file_handler.get_presigned_file_url(stored, provided)
             result[provided] = url
         return jsonify(result)
 
@@ -186,7 +190,7 @@ def get_patient_data():
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error", "Error": "An error occurred"})
-    
+ 
 #
 @app.route('/get_patients_by_doctor_id', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -216,6 +220,23 @@ def get_patients_by_doctor_id():
     except Exception as e:
         print("RIGHTTTTTTT HAND")
         print(e)
+
+
+@app.route('/get_appointment_times', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def get_appointment_times():
+    try:
+        #date = request.get_json("date")
+        date = '2023-12-02'
+        appointment_handler = AppointmentHandler()
+        available_week_times = appointment_handler.available_times_in_week(request.get_json("doctor_id"))
+        date_list, weekday_list = appointment_handler.get_seven_days(date)
+        
+        return "Hello world"
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+    
 
 if __name__ == "__main__":
     app.run(debug = True)
