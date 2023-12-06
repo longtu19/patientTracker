@@ -23,12 +23,15 @@ class FileHandler:
     def __init__(self):
         self.ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png'}
 
+    @staticmethod
     def get_file_type(self, filename):
         return '.' in filename and filename.split('.')[1].lower()
 
+    @staticmethod
     def allowed_file(self, filename):
         return self.get_file_type(filename) in self.ALLOWED_EXTENSIONS
 
+    @staticmethod
     def upload_file_to_s3(self, file, provided_filename):
         try:
             stored_filename = f'{str(uuid.uuid4())}.{self.get_file_type(provided_filename)}'
@@ -38,6 +41,7 @@ class FileHandler:
             print(e)
             return None
         
+    @staticmethod
     def get_presigned_file_url(self, stored_filename, provided_filename):
         try:
             if stored_filename and provided_filename:
