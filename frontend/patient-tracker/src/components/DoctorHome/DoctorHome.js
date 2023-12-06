@@ -48,6 +48,7 @@ export default function DoctorHome() {
         if (result.Result === "Success") {
           if (result.Data !== null){
             setPatLst(result.Data);
+            console.log(patLst)
 
           }
           
@@ -63,8 +64,8 @@ export default function DoctorHome() {
 
   const filteredPat = patLst.filter(
     (item) =>
-      item.first.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.last.toLowerCase().includes(searchQuery.toLowerCase())
+      item[0].toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item[1].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectEmp = (empId, firstName, lastName) => {
@@ -136,7 +137,7 @@ export default function DoctorHome() {
                   {filteredPat && filteredPat.map((pat) => (
                     <li className="list-group-item em btn">
                       <p>
-                        {pat.first} {pat.last}
+                        {pat[0]} {pat[1]}
                       </p>
                     </li>
                   ))}
