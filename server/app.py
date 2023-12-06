@@ -4,7 +4,7 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-from datetime import datetime, timedelta
+from datetime import datetime
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random

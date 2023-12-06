@@ -41,7 +41,7 @@ class AppointmentHandler:
     def get_seven_days(self, date):
         try:
             cur_date = datetime.strptime(date, '%Y-%m-%d')
-            date_list = [cur_date.strftime("%Y/%m/%d")]
+            date_list = [date]
             weekday_list = [self.weekdays[cur_date.weekday()]]
 
             for i in range(1, 4):

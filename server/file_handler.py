@@ -19,7 +19,6 @@ s3 = boto3.client(
 )
 
 class FileHandler:
-
     def __init__(self):
         self.ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png'}
 
