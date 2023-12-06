@@ -37,16 +37,16 @@ def available_times_in_week(doctor_id):
 
 def get_seven_days(date):
     cur_date = datetime.strptime(date, '%Y-%m-%d')
-    date_list = [cur_date]
+    date_list = [cur_date.strftime("%Y/%m/%d")]
     weekday_list = [weekdays[cur_date.weekday()]]
 
     for i in range(1, 4):
         before = datetime.strptime(date, '%Y-%m-%d') - timedelta(i)
-        date_list = [before] + date_list
+        date_list = [before.strftime("%Y/%m/%d")] + date_list
         weekday_list = [weekdays[before.weekday()]] + weekday_list
 
         after = datetime.strptime(date, '%Y-%m-%d') + timedelta(i)
-        date_list.append(after)
+        date_list.append(after.strftime("%Y/%m/%d"))
         weekday_list.append(weekdays[after.weekday()])
 
     return [date_list, weekday_list]
