@@ -103,17 +103,18 @@ def login():
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def upload_file():
     try:
+        file_handler = FileHandler()
         cur = conn.cursor()
         file = request.files['record']
         filename = file.filename
         # file = os.environ.get("TEST_FILE")
         # filename = "test.txt"
-        if filename and FileHandler.allowed_file(filename):
+        if filename and file_handler.allowed_file(filename):
             patient_id = request.json.get('patient_id')
             #patient_id = 12
 
             provided_filename = secure_filename(filename)
-            stored_filename = FileHandler.upload_file_to_s3(file, filename)
+            stored_filename = file_handler.upload_file_to_s3(file, filename)
             if stored_filename:
                 print(stored_filename)
                 date = datetime.now()
@@ -133,6 +134,7 @@ def upload_file():
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_file_urls():
     try:
+        file_handler = FileHandler()
         cur = conn.cursor()
         patient_id = request.json.get('patient_id')
         query = """
@@ -146,7 +148,7 @@ def get_file_urls():
         for file in file_list:
             provided = file[0]
             stored = file[1]
-            url = FileHandler.get_presigned_file_url(stored, provided)
+            url = file_handler.get_presigned_file_url(stored, provided)
             result[provided] = url
         return jsonify(result)
 
@@ -223,8 +225,9 @@ def get_appointment_times():
     try:
         #date = request.get_json("date")
         date = '2023-12-02'
-        available_week_times = AppointmentHandler.available_times_in_week(request.get_json("doctor_id"))
-        date_list, weekday_list = AppointmentHandler.get_seven_days(date)
+        appointment_handler = AppointmentHandler()
+        available_week_times = appointment_handler.available_times_in_week(request.get_json("doctor_id"))
+        date_list, weekday_list = appointment_handler.get_seven_days(date)
         
         return "Hello world"
     except Exception as e:
