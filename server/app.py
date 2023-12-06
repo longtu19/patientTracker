@@ -9,8 +9,8 @@ from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
 
-from file_handler import allowed_file, upload_file_to_s3, get_presigned_file_url
-from appointment_handler import available_times_in_week, get_seven_days
+from file_handler import FileHandler
+from appointment_handler import AppointmentHandler
 
 load_dotenv()
 app = Flask(__name__)
@@ -108,12 +108,12 @@ def upload_file():
         filename = file.filename
         # file = os.environ.get("TEST_FILE")
         # filename = "test.txt"
-        if filename and allowed_file(filename):
+        if filename and FileHandler.allowed_file(filename):
             patient_id = request.json.get('patient_id')
             #patient_id = 12
 
             provided_filename = secure_filename(filename)
-            stored_filename = upload_file_to_s3(file, filename)
+            stored_filename = FileHandler.upload_file_to_s3(file, filename)
             if stored_filename:
                 print(stored_filename)
                 date = datetime.now()
@@ -146,7 +146,7 @@ def get_file_urls():
         for file in file_list:
             provided = file[0]
             stored = file[1]
-            url = get_presigned_file_url(stored, provided)
+            url = FileHandler.get_presigned_file_url(stored, provided)
             result[provided] = url
         return jsonify(result)
 
@@ -223,8 +223,8 @@ def get_appointment_times():
     try:
         #date = request.get_json("date")
         date = '2023-12-02'
-        available_week_times = available_times_in_week(request.get_json("doctor_id"))
-        date_list, weekday_list = get_seven_days(date)
+        available_week_times = AppointmentHandler.available_times_in_week(request.get_json("doctor_id"))
+        date_list, weekday_list = AppointmentHandler.get_seven_days(date)
         
         return "Hello world"
     except Exception as e:
