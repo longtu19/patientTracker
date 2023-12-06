@@ -60,12 +60,13 @@ def register():
                 sex = request.json['sex']
 
                 cur.execute("SELECT DISTINCT doctor_id FROM doctor;")
-                doctor_id_list = cur.fetchone()[0]
+                doctor_id_list = cur.fetchall()
+                print(doctor_id_list)
 
                 if not doctor_id_list:
                     primary_care_doctor_id = None
                 else:
-                    primary_care_doctor_id = doctor_id_list(random.randint(0, len(doctor_id_list)))
+                    primary_care_doctor_id = doctor_id_list[random.randint(0, len(doctor_id_list))]
             
 
                 #Insert into patients table
@@ -209,12 +210,14 @@ def get_patients_by_doctor_id():
                 );
             """
         cur.execute(query, (doctor_id,))
-        patient_data = cur.fetchone()
+        patient_data = cur.fetchall()
+        print(patient_data)
         return jsonify({
             "Result": "Success",
             "Data": patient_data
         })
     except Exception as e:
+        print("RIGHTTTTTTT HAND")
         print(e)
 
 
