@@ -17,8 +17,8 @@ conn = psycopg2.connect(
 class AppointmentHandler:
     def __init__(self):
         #List of weekdays based on id
-        self.weekdays = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", \
-            4: "Friday", 5: "Saturday", 6: "Sunday"}        
+        self.weekdays = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", \
+            4: "Fri", 5: "Sat", 6: "Sun"}        
     
     #Makes a query to the table with the available hours during the week of a specific doctor
     #Returns the available hours of a doctor during a week
@@ -27,10 +27,16 @@ class AppointmentHandler:
             available = {self.weekdays[i]: [] for i in range(7)}
             cur = conn.cursor()
             for i in range(7):
-                cur.execute("SELECT times FROM doctor_work_hours WHERE doctor_id = %s AND \
+                cur.execute("SELECT start_work_hour, end_work_hour FROM doctor_work_hours WHERE doctor_id = %s AND \
                             day_of_week = %s", (doctor_id, self.weekdays[i], ))
-                hours = cur.fetchall()
-                available[self.weekdays[i]] = hours
+                hours = cur.fetchone()
+                start = int(hours[0].split(":")[0])
+                end = int(hours[1].split(":")[0])
+                if end < start: end = end + 24
+                for time in range(start, end):
+                    cur = str(time % 24) + ":00 - "
+                    next = str((time + 1) % 24) + ":00"
+                    available[self.weekdays[i]].append(cur + next)
             return available
 
         except Exception as e:
@@ -60,4 +66,5 @@ class AppointmentHandler:
 
 if __name__ == "__main__":
     appointment_handler = AppointmentHandler()
-    print(appointment_handler.get_seven_days("2023-12-02"))
+    print(appointment_handler.available_times_in_week(2))
+
