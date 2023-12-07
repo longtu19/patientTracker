@@ -4,7 +4,7 @@ import psycopg2
 import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
-from datetime import datetime, timedelta
+from datetime import datetime
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
@@ -105,6 +105,7 @@ def upload_file():
         file_handler = FileHandler()
         cur = conn.cursor()
         file = request.files['record']
+        print("Hi from app")
         filename = file.filename
         # file = os.environ.get("TEST_FILE")
         # filename = "test.txt"
@@ -114,8 +115,8 @@ def upload_file():
 
             provided_filename = secure_filename(filename)
             stored_filename = file_handler.upload_file_to_s3(file, filename)
+            print("Hi")
             if stored_filename:
-                print(stored_filename)
                 date = datetime.now()
                 query = """ 
                         INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \

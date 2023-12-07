@@ -20,22 +20,6 @@ conn = psycopg2.connect(
 
 warnings.filterwarnings(action="ignore", message="unclosed", category=ResourceWarning)
 
-register_object = {
-    "email": "abcdef@gmail.com", 
-    "password": "123456", 
-    "first_name": "Bob", 
-    "last_name": "Americanman", 
-    "status": "patient", 
-    "birthday": "12/24/2002", 
-    "sex": "Male",
-    "role": "patient"
-}
-
-login_object = {
-    "email": "traudaica123@gmail.com", 
-    "password": "traudaica123", 
-}
-
 class FlaskTest(unittest.TestCase):
     def setUp(self) -> None:
         app.config['TESTING'] = True
@@ -46,6 +30,16 @@ class FlaskTest(unittest.TestCase):
         self.assertEqual(response.data.decode(), "Welcome")
 
     def test_register(self):
+        register_object = {
+            "email": "abcdef@gmail.com", 
+            "password": "123456", 
+            "first_name": "Bob", 
+            "last_name": "Americanman", 
+            "status": "patient", 
+            "birthday": "12/24/2002", 
+            "sex": "Male",
+            "role": "patient"
+        }
         response = self.client.post('/register', json=register_object)
         self.assertEqual(response.json["Result"], "Success")
         
@@ -55,7 +49,18 @@ class FlaskTest(unittest.TestCase):
         conn.commit()
     
     def test_login(self):
+        login_object = {
+            "email": "traudaica123@gmail.com", 
+            "password": "traudaica123", 
+        }
         response = self.client.post('/login', json=login_object)
+        self.assertEqual(response.json["Result"], "Success")
+
+    def test_upload_file(self):
+        upload_object = {
+            "patient_id": 12
+        }
+        response = self.client.post('/upload_file', json=upload_object)
         self.assertEqual(response.json["Result"], "Success")
 
 if __name__ == '__main__':
