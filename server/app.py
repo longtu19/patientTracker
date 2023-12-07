@@ -257,7 +257,7 @@ def get_appointment_times():
         for day, weekday in zip(date_list, weekday_list):
             if weekday not in available_week_times: continue
             query = """
-                    SELECT scheduled_start_time, scheduled_end_time
+                    SELECT start_time, end_time
                     FROM appointment
                     WHERE doctor_id = %s AND date(scheduled_start_time) = %s
                 """
