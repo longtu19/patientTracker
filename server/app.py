@@ -245,13 +245,35 @@ def get_patients_by_doctor_id():
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_appointment_times():
     try:
+        cur = conn.cursor()
         #date = request.get_json("date")
         date = '2023-12-02'
+        doctor_id = request.get_json("doctor_id")
         appointment_handler = AppointmentHandler()
-        available_week_times = appointment_handler.available_times_in_week(request.get_json("doctor_id"))
+        available_week_times = appointment_handler.available_times_in_week(doctor_id)
         date_list, weekday_list = appointment_handler.get_seven_days(date)
         
-        return "Hello world"
+        all_available_times = defaultdict(list)
+        for day, weekday in zip(date_list, weekday_list):
+            if weekday not in available_week_times: continue
+            query = """
+                    SELECT scheduled_start_time, scheduled_end_time
+                    FROM appointment
+                    WHERE doctor_id = %s AND date(scheduled_start_time) = %s
+                """
+            cur.execute(query, (doctor_id, day, ))
+            day_appointments = cur.fetchall()
+            unavailable_timeframes = []
+            for appointment in day_appointments:
+                start = int(appointment[0].split(" ")[1].split(":")[0])
+                end = int(appointment[1].split(" ")[1].split(":")[0])
+                if end < start: end = end + 24
+                timeframe = str(start % 24) + ":00 - " + str(end % 24) + ":00"
+                unavailable_timeframes.append(timeframe)
+            
+            all_available_times[day] = set(available_week_times[weekday]).symmetric_difference(set(unavailable_timeframes))
+            
+        return jsonify({"Result": "Success", "Times": all_available_times})
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})

@@ -35,7 +35,7 @@ class AppointmentHandler:
             working_hours = []
             if end < start: end = end + 24
             for time in range(start, end):
-                cur = str(time % 24) + ":00 - "
+                cur = str(time % 24) + ":00-"
                 next = str((time + 1) % 24) + ":00"
                 working_hours.append(cur + next)
 
