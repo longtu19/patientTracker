@@ -24,19 +24,22 @@ class AppointmentHandler:
     #Returns the available hours of a doctor during a week
     def available_times_in_week(self, doctor_id):
         try:
-            available = {self.weekdays[i]: [] for i in range(7)}
             cur = conn.cursor()
-            for i in range(7):
-                cur.execute("SELECT start_work_hour, end_work_hour FROM doctor_work_hours WHERE doctor_id = %s AND \
-                            day_of_week = %s", (doctor_id, self.weekdays[i], ))
-                hours = cur.fetchone()
-                start = int(hours[0].split(":")[0])
-                end = int(hours[1].split(":")[0])
-                if end < start: end = end + 24
-                for time in range(start, end):
-                    cur = str(time % 24) + ":00 - "
-                    next = str((time + 1) % 24) + ":00"
-                    available[self.weekdays[i]].append(cur + next)
+            cur.execute("SELECT day_of_week, start_work_hour, end_work_hour FROM doctor_work_hours WHERE doctor_id = %s", (doctor_id, ))
+            total = cur.fetchall()
+
+            days = total[0].split(" ")
+            start = int(total[1].split(":")[0])
+            end = int(total[2].split(":")[0])
+
+            working_hours = []
+            if end < start: end = end + 24
+            for time in range(start, end):
+                cur = str(time % 24) + ":00 - "
+                next = str((time + 1) % 24) + ":00"
+                working_hours.append(cur + next)
+
+            available = {day: working_hours for day in days}
             return available
 
         except Exception as e:
