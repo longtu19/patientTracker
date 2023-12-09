@@ -319,5 +319,23 @@ def update_appointment():
         print(e)
         return jsonify({"Result": "Error"})
 
+@app.route('/delete_appointment', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def delete_appointment():
+    try:
+        cur = conn.cursor()
+        appointment_id = request.get_json("appointment_id")
+        query = """
+            DELETE FROM appointment
+            WHERE appointment_id = %s
+        """
+        cur.execute(query, (appointment_id, ))
+        conn.commit()
+        return jsonify({"Result": "Success"})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+
 if __name__ == "__main__":
     app.run(debug = True)
