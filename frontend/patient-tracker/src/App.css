@@ -2,9 +2,18 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app-container {
+  display: flex;
+}
+.navbar {
+  width: 200px; /* Set your desired width */
+}
+
+
+.content-container {
+  flex: 1;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 @media (prefers-reduced-motion: no-preference) {
