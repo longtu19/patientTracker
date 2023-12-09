@@ -29,9 +29,14 @@ class FileHandler:
         return self.get_file_type(filename) in self.ALLOWED_EXTENSIONS
 
     def upload_file_to_s3(self, file, provided_filename):
+
         try:
             stored_filename = f'{str(uuid.uuid4())}.{self.get_file_type(provided_filename)}'
-            s3.upload_file(file, S3_BUCKET_NAME, stored_filename)
+            print("michiko")
+            print(stored_filename)
+            print(file)
+            print(S3_BUCKET_NAME)
+            s3.upload_fileobj(file, S3_BUCKET_NAME, stored_filename)
             return stored_filename
         except ValueError as e:
             print(e)

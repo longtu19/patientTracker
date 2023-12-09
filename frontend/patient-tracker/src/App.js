@@ -10,23 +10,30 @@ import NavBar from "./components/NavBar/NavBar";
 import { Nav } from "reactstrap";
 import ProtectedRoute from "../src/components/ProtectedRoute/ProtectedRoute";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import ListFiles from "./components/ListFiles/ListFiles";
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="App">
+      <div className="App app-container">
         <NavBar />
-        <Routes>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<LogIn />} />
-          </Route>
-          <Route path="/register" element={<Register />} />
-          <Route element= {<PrivateRoute/>}>
-            <Route path="/doctorhome" element={<DoctorHome />} />
-            <Route path="/doctorappointment" element={<DoctorAppointment />} />
-            <Route path="/patienthome" element={<PatientHome />} />
-          </Route>
-        </Routes>
+        <div className="content-container">
+          <Routes>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<LogIn />} />
+            </Route>
+            <Route path="/register" element={<Register />} />
+            <Route element={<PrivateRoute />}>
+              <Route path="/doctorhome" element={<DoctorHome />} />
+              <Route
+                path="/doctorappointment"
+                element={<DoctorAppointment />}
+              />
+              <Route path="/patienthome" element={<PatientHome />} />
+              <Route path="/listfiles" element={<ListFiles />} />
+            </Route>
+          </Routes>
+        </div>
       </div>
     </BrowserRouter>
   );
