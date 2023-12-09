@@ -1,0 +1,6 @@
+Flask
+python-dotenv
+psycopg2-binary
+Flask-Bcrypt
+Flask-CORS
+Werkzeug
