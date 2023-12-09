@@ -88,7 +88,16 @@ def login():
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
         if bcrypt.check_password_hash(entry[2], password):
-            return {"Result": "Success", "User_ID": entry[0], "Role": entry[1]}
+            if entry[1] == "doctor":
+                cur.execute("SELECT doctor_id FROM doctor WHERE user_id = %s", (entry[0], ))
+                doctor_id = cur.fetchone()
+                return {"Result": "Success", "User_ID": entry[0], "Role": entry[1], "Role_ID": doctor_id[0]}
+            else:
+                print(entry[0])
+                cur.execute("SELECT patient_id FROM patient WHERE user_id = %s", (entry[0], ))
+                patient_id = cur.fetchone()
+                return {"Result": "Success", "User_ID": entry[0], "Role": entry[1], "Role_ID": patient_id[0]}
+                
         else:
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
@@ -100,27 +109,31 @@ def upload_file():
     try:
         file_handler = FileHandler()
         cur = conn.cursor()
+        print("DAYYYY")
+        print(request.files)
         file = request.files['record']
         print("Hi from app")
         filename = file.filename
         # file = os.environ.get("TEST_FILE")
         # filename = "test.txt"
         if filename and file_handler.allowed_file(filename):
-            patient_id = request.json.get('patient_id')
+            patient_id = request.form.get("patient_id")
+            print(patient_id)
             #patient_id = 12
-
-            provided_filename = secure_filename(filename)
-            stored_filename = file_handler.upload_file_to_s3(file, filename)
-            print("Hi")
+            provided_filename = secure_filename(file.filename)
+            stored_filename = file_handler.upload_file_to_s3(file, provided_filename)
             if stored_filename:
                 date = datetime.now()
+                
                 query = """ 
                         INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
                         VALUES (%s, %s, %s, %s)
                     """
+                
                 cur.execute(query, (provided_filename, stored_filename, patient_id, date, ))
                 conn.commit()
                 return jsonify({"Result": "Success"})
+            return jsonify({"Result": "Error", "Message": "File not stored successfully"})
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
@@ -133,6 +146,7 @@ def get_file_urls():
         file_handler = FileHandler()
         cur = conn.cursor()
         patient_id = request.json.get('patient_id')
+        
         query = """
                 SELECT provided_filename, stored_filename
                 FROM medical_record
@@ -145,6 +159,7 @@ def get_file_urls():
             provided = file[0]
             stored = file[1]
             url = file_handler.get_presigned_file_url(stored, provided)
+            print(url)
             result[provided] = url
         return jsonify(result)
 
