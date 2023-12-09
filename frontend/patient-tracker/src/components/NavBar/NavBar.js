@@ -22,8 +22,14 @@ function NavBar() {
         <li>
           <Link to="/register">Create Account</Link>
         </li>
+        <li> 
+        <Link to = "/documents"> Documents</Link>
+        </li>
         <li>
           <Link to="/">Log Out</Link>
+        </li>
+        <li>
+          <Link to="/scheduler">Scheduler</Link>
         </li>
       
   
