@@ -30,9 +30,6 @@ conn = psycopg2.connect(
 def index():
     return "Welcome"
 
-# object = {"email": "abc@gmail.com", "password": '123456', "first_name": "Bob", "last_name": "Americanman", "status": "patient", \
-#      "birthday": "12/24/2002", "sex": "Male"}
-
 @app.route('/register', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def register():
@@ -261,9 +258,9 @@ def get_appointment_times():
             query = """
                     SELECT start_time, end_time
                     FROM appointment
-                    WHERE doctor_id = %s AND date(start_time) = %s
+                    WHERE doctor_id = %s AND date(start_time) = %s AND status = %s
                 """
-            cur.execute(query, (doctor_id, day, ))
+            cur.execute(query, (doctor_id, day, "Scheduled", ))
             day_appointments = cur.fetchall()
             # day_appointments = [["2023-12-09 8:00:00", "2023-12-09 9:00:00"], ["2023-12-09 11:00:00", "2023-12-09 12:00:00"]]
             unavailable_timeframes = []
@@ -277,6 +274,47 @@ def get_appointment_times():
             all_available_times[day] = list(set(available_week_times[weekday]) - set(unavailable_timeframes))
 
         return jsonify({"Result": "Success", "Times": all_available_times})
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+
+@app.route('/make_appointment', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def make_appointment():
+    try:
+        cur = conn.cursor()
+        patient_id = request.get_json("patient_id")
+        doctor_id = request.get_json("doctor_id")
+        start_time = request.get_json("start_time")
+        end_time = request.get_json("end_time")
+        query = """
+            INSERT INTO appointment (patient_id, doctor_id, status, start_time, end_time)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        cur.execute(query, (patient_id, doctor_id, "Scheduled", start_time, end_time))
+        conn.commit()
+        return jsonify({"Result": "Success"})
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+
+
+@app.route('/update_appointment', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def update_appointment():
+    try:
+        cur = conn.cursor()
+        appointment_id = request.get_json("appointment_id")
+        new_status = request.get_json("new_status")
+        query = """
+            UPDATE appointment
+            SET status = %s
+            WHERE appointment_id = %s
+        """
+        cur.execute(query, (new_status, appointment_id, ))
+        conn.commit()
+        return jsonify({"Result": "Success"})
+
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})
