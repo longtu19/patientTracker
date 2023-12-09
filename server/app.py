@@ -261,7 +261,7 @@ def get_appointment_times():
             query = """
                     SELECT start_time, end_time
                     FROM appointment
-                    WHERE doctor_id = %s AND date(scheduled_start_time) = %s
+                    WHERE doctor_id = %s AND date(start_time) = %s
                 """
             cur.execute(query, (doctor_id, day, ))
             day_appointments = cur.fetchall()
@@ -273,7 +273,8 @@ def get_appointment_times():
                 timeframe = start + "-" + end
                 unavailable_timeframes.append(timeframe)
             
-            all_available_times[day] = list(set(available_week_times[weekday]).symmetric_difference(set(unavailable_timeframes)))
+            #Retrieves times within the available times that are not in the unavailable timeframes
+            all_available_times[day] = list(set(available_week_times[weekday]) - set(unavailable_timeframes))
 
         return jsonify({"Result": "Success", "Times": all_available_times})
     except Exception as e:
