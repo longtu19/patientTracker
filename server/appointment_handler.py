@@ -17,20 +17,30 @@ conn = psycopg2.connect(
 class AppointmentHandler:
     def __init__(self):
         #List of weekdays based on id
-        self.weekdays = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", \
-            4: "Friday", 5: "Saturday", 6: "Sunday"}        
+        self.weekdays = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", \
+            4: "Fri", 5: "Sat", 6: "Sun"}        
     
     #Makes a query to the table with the available hours during the week of a specific doctor
     #Returns the available hours of a doctor during a week
     def available_times_in_week(self, doctor_id):
         try:
-            available = {self.weekdays[i]: [] for i in range(7)}
             cur = conn.cursor()
-            for i in range(7):
-                cur.execute("SELECT times FROM doctor_work_hours WHERE doctor_id = %s AND \
-                            day_of_week = %s", (doctor_id, self.weekdays[i], ))
-                hours = cur.fetchall()
-                available[self.weekdays[i]] = hours
+            # cur.execute("SELECT day_of_week, start_work_hour, end_work_hour FROM doctor_work_hours WHERE doctor_id = %s", (doctor_id, ))
+            # total = cur.fetchall()
+            total = ["Mon Wed Fri", "8:00:00", "13:00:00"]
+
+            days = total[0].split(" ")
+            start = int(total[1].split(":")[0])
+            end = int(total[2].split(":")[0])
+
+            working_hours = []
+            if end < start: end = end + 24
+            for time in range(start, end):
+                cur = str(time % 24) + ":00:00-"
+                next = str((time + 1) % 24) + ":00:00"
+                working_hours.append(cur + next)
+
+            available = {day: working_hours for day in days}
             return available
 
         except Exception as e:
@@ -46,11 +56,11 @@ class AppointmentHandler:
 
             for i in range(1, 4):
                 before = datetime.strptime(date, '%Y-%m-%d') - timedelta(i)
-                date_list = [before.strftime("%Y/%m/%d")] + date_list
+                date_list = [before.strftime("%Y-%m-%d")] + date_list
                 weekday_list = [self.weekdays[before.weekday()]] + weekday_list
 
                 after = datetime.strptime(date, '%Y-%m-%d') + timedelta(i)
-                date_list.append(after.strftime("%Y/%m/%d"))
+                date_list.append(after.strftime("%Y-%m-%d"))
                 weekday_list.append(self.weekdays[after.weekday()])
 
             return [date_list, weekday_list]
@@ -60,4 +70,5 @@ class AppointmentHandler:
 
 if __name__ == "__main__":
     appointment_handler = AppointmentHandler()
-    print(appointment_handler.get_seven_days("2023-12-02"))
+    print(appointment_handler.available_times_in_week(2))
+
