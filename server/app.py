@@ -247,15 +247,17 @@ def get_appointment_times():
     try:
         cur = conn.cursor()
         #date = request.get_json("date")
-        date = '2023-12-02'
-        doctor_id = request.get_json("doctor_id")
+        date = '2023-12-11'
+        #doctor_id = request.get_json("doctor_id")
+        doctor_id = 13
         appointment_handler = AppointmentHandler()
         available_week_times = appointment_handler.available_times_in_week(doctor_id)
         date_list, weekday_list = appointment_handler.get_seven_days(date)
         
         all_available_times = defaultdict(list)
         for day, weekday in zip(date_list, weekday_list):
-            if weekday not in available_week_times: continue
+            #Only returns appointments from or after today's date, and if the weekday is within the doctor's available days
+            if datetime.strptime(day, '%Y-%m-%d') < datetime.now() or weekday not in available_week_times: continue
             query = """
                     SELECT start_time, end_time
                     FROM appointment
@@ -263,16 +265,16 @@ def get_appointment_times():
                 """
             cur.execute(query, (doctor_id, day, ))
             day_appointments = cur.fetchall()
+            # day_appointments = [["2023-12-09 8:00:00", "2023-12-09 9:00:00"], ["2023-12-09 11:00:00", "2023-12-09 12:00:00"]]
             unavailable_timeframes = []
             for appointment in day_appointments:
-                start = int(appointment[0].split(" ")[1].split(":")[0])
-                end = int(appointment[1].split(" ")[1].split(":")[0])
-                if end < start: end = end + 24
-                timeframe = str(start % 24) + ":00 - " + str(end % 24) + ":00"
+                start = appointment[0].split(" ")[1]
+                end = appointment[1].split(" ")[1]
+                timeframe = start + "-" + end
                 unavailable_timeframes.append(timeframe)
             
-            all_available_times[day] = set(available_week_times[weekday]).symmetric_difference(set(unavailable_timeframes))
-            
+            all_available_times[day] = list(set(available_week_times[weekday]).symmetric_difference(set(unavailable_timeframes)))
+
         return jsonify({"Result": "Success", "Times": all_available_times})
     except Exception as e:
         print(e)

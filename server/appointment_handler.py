@@ -25,8 +25,9 @@ class AppointmentHandler:
     def available_times_in_week(self, doctor_id):
         try:
             cur = conn.cursor()
-            cur.execute("SELECT day_of_week, start_work_hour, end_work_hour FROM doctor_work_hours WHERE doctor_id = %s", (doctor_id, ))
-            total = cur.fetchall()
+            # cur.execute("SELECT day_of_week, start_work_hour, end_work_hour FROM doctor_work_hours WHERE doctor_id = %s", (doctor_id, ))
+            # total = cur.fetchall()
+            total = ["Mon Wed Fri", "8:00:00", "13:00:00"]
 
             days = total[0].split(" ")
             start = int(total[1].split(":")[0])
@@ -35,8 +36,8 @@ class AppointmentHandler:
             working_hours = []
             if end < start: end = end + 24
             for time in range(start, end):
-                cur = str(time % 24) + ":00-"
-                next = str((time + 1) % 24) + ":00"
+                cur = str(time % 24) + ":00:00-"
+                next = str((time + 1) % 24) + ":00:00"
                 working_hours.append(cur + next)
 
             available = {day: working_hours for day in days}
@@ -55,11 +56,11 @@ class AppointmentHandler:
 
             for i in range(1, 4):
                 before = datetime.strptime(date, '%Y-%m-%d') - timedelta(i)
-                date_list = [before.strftime("%Y/%m/%d")] + date_list
+                date_list = [before.strftime("%Y-%m-%d")] + date_list
                 weekday_list = [self.weekdays[before.weekday()]] + weekday_list
 
                 after = datetime.strptime(date, '%Y-%m-%d') + timedelta(i)
-                date_list.append(after.strftime("%Y/%m/%d"))
+                date_list.append(after.strftime("%Y-%m-%d"))
                 weekday_list.append(self.weekdays[after.weekday()])
 
             return [date_list, weekday_list]
