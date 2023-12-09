@@ -401,4 +401,4 @@ def delete_appointment():
         return jsonify({"Result": "Error"})
 
 if __name__ == "__main__":
-    socketio.run(debug = True)
+    socketio.run(app, debug = True)
