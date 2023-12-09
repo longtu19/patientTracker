@@ -306,12 +306,13 @@ def update_appointment():
         cur = conn.cursor()
         appointment_id = request.get_json("appointment_id")
         new_status = request.get_json("new_status")
+        cancel_reason = request.get_json("cancel_reason")
         query = """
             UPDATE appointment
-            SET status = %s
+            SET status = %s, cancel_reason = %s,
             WHERE appointment_id = %s
         """
-        cur.execute(query, (new_status, appointment_id, ))
+        cur.execute(query, (new_status, cancel_reason, appointment_id,  ))
         conn.commit()
         return jsonify({"Result": "Success"})
 
