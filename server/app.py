@@ -8,12 +8,14 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
+from flask_socketio import SocketIO
 
 from file_handler import FileHandler
 from appointment_handler import AppointmentHandler
 
 load_dotenv()
 app = Flask(__name__)
+socketio = SocketIO(app)
 bcrypt = Bcrypt(app)
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -88,7 +90,16 @@ def login():
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
         if bcrypt.check_password_hash(entry[2], password):
-            return {"Result": "Success", "User_ID": entry[0], "Role": entry[1]}
+            if entry[1] == "doctor":
+                cur.execute("SELECT doctor_id FROM doctor WHERE user_id = %s", (entry[0], ))
+                doctor_id = cur.fetchone()
+                return {"Result": "Success", "User_ID": entry[0], "Role": entry[1], "Role_ID": doctor_id[0]}
+            else:
+                print(entry[0])
+                cur.execute("SELECT patient_id FROM patient WHERE user_id = %s", (entry[0], ))
+                patient_id = cur.fetchone()
+                return {"Result": "Success", "User_ID": entry[0], "Role": entry[1], "Role_ID": patient_id[0]}
+                
         else:
             return jsonify({"Result": "Error", "Error": "Invalid Password!"})
     except ValueError as e:
@@ -100,6 +111,8 @@ def upload_file():
     try:
         file_handler = FileHandler()
         cur = conn.cursor()
+        print("DAYYYY")
+        print(request.files)
         file = request.files['record']
 
         filename = file.filename
@@ -110,13 +123,16 @@ def upload_file():
 
             if stored_filename:
                 date = datetime.now()
+                
                 query = """ 
                         INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
                         VALUES (%s, %s, %s, %s)
                     """
+                
                 cur.execute(query, (provided_filename, stored_filename, patient_id, date, ))
                 conn.commit()
                 return jsonify({"Result": "Success"})
+            return jsonify({"Result": "Error", "Message": "File not stored successfully"})
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
@@ -129,6 +145,7 @@ def get_file_urls():
         file_handler = FileHandler()
         cur = conn.cursor()
         patient_id = request.json.get('patient_id')
+        
         query = """
                 SELECT provided_filename, stored_filename
                 FROM medical_record
@@ -141,6 +158,7 @@ def get_file_urls():
             provided = file[0]
             stored = file[1]
             url = file_handler.get_presigned_file_url(stored, provided)
+            print(url)
             result[provided] = url
         return jsonify(result)
 
@@ -320,6 +338,8 @@ def update_appointment():
         appointment_id = request.get_json("appointment_id")
         new_status = request.get_json("new_status")
         cancel_reason = request.get_json("cancel_reason")
+        patient_id = request.get_json("patient_id")
+
         query = """
             UPDATE appointment
             SET status = %s, cancel_reason = %s,
@@ -327,11 +347,54 @@ def update_appointment():
         """
         cur.execute(query, (new_status, cancel_reason, appointment_id,  ))
         conn.commit()
+
+        retrieve_query = """
+            SELECT doctor_id, patient_id, start_time
+            FROM appointment
+            WHERE appointment_id = %s
+        """
+        cur.execute(retrieve_query, (appointment_id,))
+        appointment_data = cur.fetchone()
+
+        if new_status == "canceled":
+            if appointment_data:
+                doctor_id, patient_id, start_time = appointment_data
+
+                # Check if the patient is connected
+                if patient_id in connected_users:
+                    session_id = connected_users[patient_id]
+                    socketio.emit('appointment_updated', {
+                        'doctor_id': doctor_id,
+                        'patient_id': patient_id,
+                        'reason': cancel_reason,
+                        'scheduled_time': start_time
+                    }, room=session_id, namespace='/patient_notification')
+                else:
+                    print(f"Patient {patient_id} is not connected.")
+            else:
+                return jsonify({"Result": "Error", "Error": "Appointment not found"})
+            
         return jsonify({"Result": "Success"})
 
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})
+    
+connected_users = {}  # Dictionary to track connected users
+
+@socketio.on('connect', namespace='/patient_notification')
+def handle_connect():
+    patient_id = request.args.get('patient_id')
+    session_id = request.sid  # Get the socket session ID
+    connected_users[patient_id] = session_id
+    print(f'Patient {patient_id} connected with session ID {session_id}')
+
+@socketio.on('disconnect', namespace='/patient_notification')
+def handle_disconnect():
+    patient_id = connected_users.get(request.sid)
+    if patient_id in connected_users:
+        del connected_users[patient_id]
+    print(f'Patient {patient_id} disconnected')
 
 #Route for deleting an appointment
 @app.route('/delete_appointment', methods = ["POST", "GET"])
@@ -353,4 +416,4 @@ def delete_appointment():
         return jsonify({"Result": "Error"})
 
 if __name__ == "__main__":
-    app.run(debug = True)
+    socketio.run(app, debug = True)
