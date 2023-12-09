@@ -54,6 +54,16 @@ CREATE TABLE Doctor_work_hours(
     day_of_week VARCHAR(3) NOT NULL -- Values like 'Mon', 'Tue', 'Wed', etc.
 );
 
+CREATE TABLE health_metrics (
+    metric_id SERIAL PRIMARY KEY,
+    patient_id INT,
+	weight INT,
+	height INT,
+	blood_pressure VARCHAR(10),
+	heart_rate INT, 
+    measurement_date TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE
+);
 -- Add the foreign key for primary_care_doctor_id in patient table
 ALTER TABLE Patient
 ADD FOREIGN KEY (primary_care_doctor_id) REFERENCES Doctor(doctor_id) ON DELETE SET NULL;

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect, useState } from "react";
 import "./doctorhome.css";
 import { patients } from "./patients_db";
 import { v4 as uuid } from "uuid";
@@ -16,6 +17,8 @@ import {
 } from "reactstrap";
 
 export default function DoctorHome() {
+  const userId = localStorage.getItem("user_id");
+
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -23,14 +26,46 @@ export default function DoctorHome() {
   let [firstname, setFirstname] = React.useState("");
   let [lastname, setLastname] = React.useState("");
   let [datevalue, setDate] = React.useState("");
-  let [patLst, setPatLst] = React.useState(patients);
+  let [patLst, setPatLst] = React.useState([]);
   let [selectedPat, setSelectedPat] = React.useState(null);
   let [count, setCount] = React.useState(patLst.length);
 
+
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/get_patients_by_doctor_id", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ user_id: userId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        console.log(result);
+        if (result.Result === "Success") {
+          if (result.Data !== null){
+            setPatLst(result.Data);
+            console.log(patLst)
+
+          }
+          
+        }
+      } catch (error) {
+        alert(error);
+      }
+    };
+
+    fetchDate()
+  }, [userId]);
+
+
   const filteredPat = patLst.filter(
     (item) =>
-      item.first.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.last.toLowerCase().includes(searchQuery.toLowerCase())
+      item[0].toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item[1].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectEmp = (empId, firstName, lastName) => {
@@ -93,11 +128,16 @@ export default function DoctorHome() {
 
             <div className="  d-flex justify-content-center ">
               <div className="list-container">
+                {filteredPat.length === 0 && 
+                  <div>
+                    No patients assigned yet!
+
+                  </div>}
                 <ul className="list-group em_list">
-                  {filteredPat.map((pat) => (
+                  {filteredPat && filteredPat.map((pat) => (
                     <li className="list-group-item em btn">
                       <p>
-                        {pat.first} {pat.last}
+                        {pat[0]} {pat[1]}
                       </p>
                     </li>
                   ))}
