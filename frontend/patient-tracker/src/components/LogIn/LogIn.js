@@ -29,13 +29,14 @@ export default function LogIn(props) {
         "Content-Type": "application/json",
       },
     });
-    console.log('Here')
     const user = await response.json();
    
     if (user.Result === 'Success') {
 
       localStorage.setItem('user_id', user.User_ID)
       localStorage.setItem('user_role', user.Role)
+      localStorage.setItem('role_id', user.Role_ID)
+      
       if (user.Role === "patient"){
         navigate("/patienthome");
 
