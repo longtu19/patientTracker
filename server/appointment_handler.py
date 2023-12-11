@@ -2,6 +2,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 load_dotenv()
 
@@ -33,32 +34,34 @@ class AppointmentHandler:
                     FROM doctor_work_hours
                     WHERE doctor_id = %s
                 """
-            cur.execute(query, (doctor_id, ))
+            cur.execute(query, (4, ))
             total = cur.fetchall()
-            print("olala")
-            print(total)
-            days = []
+            available = defaultdict(list)
+            for entry in total:
+                days = []
 
-            # Days are formatted in "X Y ..." where X and Y are specific weekdays 
-            days = total[0].split(" ")
+                # Days are formatted in "X Y ..." where X and Y are specific weekdays 
+                days = entry[0].split(" ")
 
-            # Active hours during certain weekdays
-            start = int(total[1].split(":")[0])
-            end = int(total[2].split(":")[0])
+                # Active hours during certain weekdays
+                start_string = entry[1].strftime("%H:%M:%S")
+                end_string = entry[2].strftime("%H:%M:%S")
+                start = int(start_string.split(":")[0])
+                end = int(end_string.split(":")[0])
 
-            working_hours = []
+                working_hours = []
 
-            # If the end hour is smaller than we add 24 to it so that it loops back around
-            if end < start: end = end + 24
+                # If the end hour is smaller than we add 24 to it so that it loops back around
+                if end < start: end = end + 24
 
-            # Formats the total available timeframe into 1-hour timeframes
-            for time in range(start, end):
-                cur = str(time % 24) + ":00:00-"
-                next = str((time + 1) % 24) + ":00:00"
-                working_hours.append(cur + next)
+                # Formats the total available timeframe into 1-hour timeframes
+                for time in range(start, end):
+                    cur = str(time % 24) + ":00:00-"
+                    next = str((time + 1) % 24) + ":00:00"
+                    working_hours.append(cur + next)
 
-            # Each weekday would have different available 1-hour timeframes
-            available = {day: working_hours for day in days}
+                # Each weekday would have different available 1-hour timeframes
+                for day in days: available[day] = working_hours
        
             return available
 
