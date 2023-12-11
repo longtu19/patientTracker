@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./patient-home.css";
 import { Button } from "reactstrap";
-function upload() {
-  alert("upload?");
-}
+import "./PatientProfile.css"
+import { useLocation } from "react-router-dom";
 
-function update() {
-  alert("update?");
-}
-
-function PatientHome() {
+function PatientProfile() {
   //const [userId, setUserId] = useState(14);
-  const userId = localStorage.getItem("user_id");
+  const location = useLocation();
+  console.log(location)
+  const state = location.state;
+  const userId = state.userId ;
   const [patient, setPatient] = useState({});
   useEffect(() => {
     const fetchDate = async () => {
@@ -35,34 +32,26 @@ function PatientHome() {
       }
     };
 
-    fetchDate()
+    fetchDate();
   }, [userId]);
-
-
 
   return (
     <div>
       <div className="info-card">
-        <div className="avatar">
-          <img
-            src="https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg"
-            alt="cat"
-          />
-        </div>
-        <div className="info-text">
+        <div className="patBox">
           <p>First Name: {patient.first_name}</p>
           <p>Last Name: {patient.last_name}</p>
           <p>Height: {patient.height}</p>
           <p>Weight: {patient.weight}</p>
           <p>Date of birth: {patient.date_of_birth}</p>
-          <p>Primary Care Physician: {patient.primary_care_doctor_first_name} {patient.primary_care_doctoc_last_name}</p>
+          <p>
+            Primary Care Physician: {patient.primary_care_doctor_first_name}{" "}
+            {patient.primary_care_doctoc_last_name}
+          </p>
         </div>
-      </div>
-      <div className="buttons">
-        <Button onClick={update}>Manually Fill out Medical Record</Button>
       </div>
     </div>
   );
 }
 
-export default PatientHome;
+export default PatientProfile;

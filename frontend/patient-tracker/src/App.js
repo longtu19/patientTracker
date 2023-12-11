@@ -11,6 +11,7 @@ import { Nav } from "reactstrap";
 import ProtectedRoute from "../src/components/ProtectedRoute/ProtectedRoute";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import ListFiles from "./components/ListFiles/ListFiles";
+import PatientProfile from "./components/PatientProfile/PatientProfile"
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               />
               <Route path="/patienthome" element={<PatientHome />} />
               <Route path="/listfiles" element={<ListFiles />} />
+              <Route path="/patientprofile" element={<PatientProfile />} />
             </Route>
           </Routes>
         </div>
