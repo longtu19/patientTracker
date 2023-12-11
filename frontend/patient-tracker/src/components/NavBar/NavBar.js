@@ -59,6 +59,12 @@ function NavBar() {
       {user_role !== null &&  (<li>
           <button onClick={handleLogOut}>Log out</button>
         </li>)}
+        )}
+      {user_role !== null &&  
+        (<li>
+          <button onClick={handleLogOut}>Log out</button>
+        </li>)
+        }
 
         {/* Add more navigation links */}
       </ul>
