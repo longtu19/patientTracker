@@ -35,6 +35,9 @@ class AppointmentHandler:
                 """
             cur.execute(query, (doctor_id, ))
             total = cur.fetchall()
+            print("olala")
+            print(total)
+            days = []
 
             # Days are formatted in "X Y ..." where X and Y are specific weekdays 
             days = total[0].split(" ")
@@ -56,6 +59,7 @@ class AppointmentHandler:
 
             # Each weekday would have different available 1-hour timeframes
             available = {day: working_hours for day in days}
+       
             return available
 
         except Exception as e:
@@ -66,6 +70,7 @@ class AppointmentHandler:
     def get_seven_days(self, date):
         try:
             # Gets the current date in datetime type so that we can find its weekday
+           
             cur_date = datetime.strptime(date, '%Y-%m-%d')
 
             # date_list contains all the 7 days in year-month-date form

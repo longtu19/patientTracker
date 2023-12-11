@@ -15,7 +15,7 @@ function Times(props) {
 
 return (
     <div className="times">
-        {time.map(times => {
+        {props.timeList.map(times => {
         return (
             <div>
                 <button onClick={(e)=> displayInfo(e)}> {times} </button>

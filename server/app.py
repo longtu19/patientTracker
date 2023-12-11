@@ -279,25 +279,27 @@ def get_patients_by_doctor_id():
 def get_appointment_times():
     try:
         cur = conn.cursor()
-        date = request.get_json("date")
-        doctor_id = request.get_json("doctor_id")
+        date = request.json.get("date")
+        doctor_id = request.json.get("doctor_id")
         appointment_handler = AppointmentHandler()
 
         # All available hours of a doctor during a week
         available_week_times = appointment_handler.available_times_in_week(doctor_id)
+        print(available_week_times)
 
         # The 7 days and corresponding weekdays based on the user inputted date
         date_list, weekday_list = appointment_handler.get_seven_days(date)
-        
+
         # The hash map containing all available times for a specific day
         all_available_times = defaultdict(list)
+  
 
         # Loops through all 7 provided days and their weekdays
         for day, weekday in zip(date_list, weekday_list):
             # Only returns appointments from or after today's date, and if the weekday is within the doctor's available days
             current_datetime = datetime.strptime(day, '%Y-%m-%d')
+        
             if current_datetime < datetime.now() or weekday not in available_week_times: continue
-
             # Finds all the scheduled appointments related to a specific doctor and on a specific weekday
             query = """
                     SELECT start_time, end_time
@@ -306,6 +308,7 @@ def get_appointment_times():
                 """
             cur.execute(query, (doctor_id, day, "Scheduled", ))
             day_appointments = cur.fetchall()
+            print("otaku")
 
             # List of times in which the doctor is unavailable
             unavailable_timeframes = []

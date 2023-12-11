@@ -29,7 +29,7 @@ function PatientHome() {
         console.log(result);
         if (result.Result === "Success") {
           setPatient(result.Data);
-          localStorage.setItem('docId', patient.docId)
+          localStorage.setItem('docId', result.Data.docId)
         }
       } catch (error) {
         alert(error);
