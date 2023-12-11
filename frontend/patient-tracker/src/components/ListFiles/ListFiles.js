@@ -33,8 +33,6 @@ function ListFiles() {
         });
         const result = await response.json();
         setListFiles(result);
-        console.log(listFiles)
-        console.log(listFiles.length)
       } catch (error) {
         alert(error);
       }

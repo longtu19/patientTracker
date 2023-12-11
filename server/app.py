@@ -48,7 +48,7 @@ def register():
             last_name = request.json['last_name']
             role = request.json['role']
             cur.execute("INSERT INTO system_user (email, password_hash, first_name, last_name, role) \
-               VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
+                        VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
             conn.commit()
             cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
             get_cur_id = cur.fetchone()[0]
@@ -68,7 +68,7 @@ def register():
 
                 #Insert into patients table
                 cur.execute("INSERT INTO patient (user_id, date_of_birth, sex, primary_care_doctor_id) \
-                VALUES (%s, %s, %s, %s)", (get_cur_id, birthday, sex, primary_care_doctor_id))
+                            VALUES (%s, %s, %s, %s)", (get_cur_id, birthday, sex, primary_care_doctor_id))
             else:
                 cur.execute("INSERT INTO doctor (user_id) VALUES (%s)", (get_cur_id, ))
             
@@ -114,16 +114,13 @@ def upload_file():
         print("DAYYYY")
         print(request.files)
         file = request.files['record']
-        print("Hi from app")
+
         filename = file.filename
-        # file = os.environ.get("TEST_FILE")
-        # filename = "test.txt"
         if filename and file_handler.allowed_file(filename):
-            patient_id = request.form.get("patient_id")
-            print(patient_id)
-            #patient_id = 12
-            provided_filename = secure_filename(file.filename)
-            stored_filename = file_handler.upload_file_to_s3(file, provided_filename)
+            patient_id = request.json.get('patient_id')
+            provided_filename = secure_filename(filename)
+            stored_filename = file_handler.upload_file_to_s3(file, filename)
+
             if stored_filename:
                 date = datetime.now()
                 
@@ -226,7 +223,6 @@ def get_patient_data():
         print(e)
         return jsonify({"Result": "Error", "Error": "An error occurred"})
  
-#
 @app.route('/get_patients_by_doctor_id', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patients_by_doctor_id():
@@ -255,23 +251,33 @@ def get_patients_by_doctor_id():
         print(e)
 
 
+# Given a specific date, returns all the available appointment times of that date 
+# and 3 other days before and after that date
 @app.route('/get_appointment_times', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_appointment_times():
     try:
         cur = conn.cursor()
-        #date = request.get_json("date")
-        date = '2023-12-11'
-        #doctor_id = request.get_json("doctor_id")
-        doctor_id = 13
+        date = request.get_json("date")
+        doctor_id = request.get_json("doctor_id")
         appointment_handler = AppointmentHandler()
+
+        # All available hours of a doctor during a week
         available_week_times = appointment_handler.available_times_in_week(doctor_id)
+
+        # The 7 days and corresponding weekdays based on the user inputted date
         date_list, weekday_list = appointment_handler.get_seven_days(date)
         
+        # The hash map containing all available times for a specific day
         all_available_times = defaultdict(list)
+
+        # Loops through all 7 provided days and their weekdays
         for day, weekday in zip(date_list, weekday_list):
-            #Only returns appointments from or after today's date, and if the weekday is within the doctor's available days
-            if datetime.strptime(day, '%Y-%m-%d') < datetime.now() or weekday not in available_week_times: continue
+            # Only returns appointments from or after today's date, and if the weekday is within the doctor's available days
+            current_datetime = datetime.strptime(day, '%Y-%m-%d')
+            if current_datetime < datetime.now() or weekday not in available_week_times: continue
+
+            # Finds all the scheduled appointments related to a specific doctor and on a specific weekday
             query = """
                     SELECT start_time, end_time
                     FROM appointment
@@ -279,9 +285,14 @@ def get_appointment_times():
                 """
             cur.execute(query, (doctor_id, day, "Scheduled", ))
             day_appointments = cur.fetchall()
-            # day_appointments = [["2023-12-09 8:00:00", "2023-12-09 9:00:00"], ["2023-12-09 11:00:00", "2023-12-09 12:00:00"]]
+
+            # List of times in which the doctor is unavailable
             unavailable_timeframes = []
+
+            # Retrieves the times in which a doctor has an appointment
             for appointment in day_appointments:
+                # Since the times are formated in year/month/day hour:minute:second, we'd have to split
+                # the string accordingly. The 1st index of the split is what we want, hour:minute:second
                 start = appointment[0].split(" ")[1]
                 end = appointment[1].split(" ")[1]
                 timeframe = start + "-" + end
@@ -295,11 +306,14 @@ def get_appointment_times():
         print(e)
         return jsonify({"Result": "Error"})
 
+# Route for making an appointment
 @app.route('/make_appointment', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def make_appointment():
     try:
         cur = conn.cursor()
+
+        #All the necessary info is retrieved from the frontend
         patient_id = request.get_json("patient_id")
         doctor_id = request.get_json("doctor_id")
         start_time = request.get_json("start_time")
@@ -315,7 +329,7 @@ def make_appointment():
         print(e)
         return jsonify({"Result": "Error"})
 
-
+#Route for updating an appointment's status
 @app.route('/update_appointment', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def update_appointment():
@@ -382,6 +396,7 @@ def handle_disconnect():
         del connected_users[patient_id]
     print(f'Patient {patient_id} disconnected')
 
+#Route for deleting an appointment
 @app.route('/delete_appointment', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def delete_appointment():
@@ -401,4 +416,4 @@ def delete_appointment():
         return jsonify({"Result": "Error"})
 
 if __name__ == "__main__":
-    socketio.run(debug = True)
+    socketio.run(app, debug = True)
