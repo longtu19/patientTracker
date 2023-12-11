@@ -1,0 +1,34 @@
+.background {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: end;
+    justify-content: center;
+    background: #D1E8E2;
+    background-size: cover;
+    overflow: hidden;
+    width: 100%;
+    height:100vh;
+}
+
+.times {
+   font: 200;
+   justify-content: center;
+   flex-direction: row;
+   padding: 10px;
+}
+
+.times Button {
+    color:steelblue;
+    background-color: beige;
+    height: 40px;
+    width: 100px;
+    box-shadow:none;
+    padding: 5px;
+}
+
+.calendar  {
+    margin-left: 25%;
+    margin-right: 5%;
+    margin-top: 2%;
+}

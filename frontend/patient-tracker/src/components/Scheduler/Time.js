@@ -1,7 +1,7 @@
 import React from 'react'
 import {useState} from 'react';
-
-const time = ['09:00','10:00', '11:00', '13:00','14:00','15:00', '16:00', '17:00']
+import "./scheduler.css";
+const time = ['09:00','10:00', '11:00', '13:00','14:00','15:00', '16:00']
 
 function Times(props) {
 
