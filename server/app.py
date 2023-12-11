@@ -111,16 +111,15 @@ def upload_file():
     try:
         file_handler = FileHandler()
         cur = conn.cursor()
-        print("DAYYYY")
-        print(request.files)
+
         file = request.files['record']
 
         filename = file.filename
-        if filename and file_handler.allowed_file(filename):
-            patient_id = request.json.get('patient_id')
+        if file and file_handler.allowed_file(filename):
+            patient_id = request.form.get('patient_id')
+            
             provided_filename = secure_filename(filename)
-            stored_filename = file_handler.upload_file_to_s3(file, filename)
-
+            stored_filename = file_handler.upload_file_to_s3(file, provided_filename)
             if stored_filename:
                 date = datetime.now()
                 
