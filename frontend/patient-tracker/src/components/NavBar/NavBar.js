@@ -28,43 +28,30 @@ function NavBar() {
           </li>
         )}
         {user_role === "patient" && (
-          <li>
-            <Link to="/listfiles"> Documents</Link>
-          </li>
-        )}
+            <li>
+              <Link to="/listfiles"> Documents</Link>
+            </li>
+          )}
         {user_role !== null && (
-        <li>
-          <Link to="/doctorappointment">Appointments</Link>
-        </li>
+          <li>
+            <Link to="/doctorappointment">Appointments</Link>
+          </li>
         )}
         {user_role === null && (
           <li>
             <Link to="/register">Create Account</Link>
           </li>
         )}
-          {user_role === null && (
-            <div>
-            <li> 
-              <Link to = "/documents"> Documents</Link>
-            </li>
-            <li>
-              <Link to="/"> Log In </Link>
-            </li>
-            <li>
-              <Link to="/scheduler"> Scheduler </Link>
-            </li>
-          </div>
-
+        {user_role === null && (
+          <li>
+            <Link to="/"> Log In </Link>
+          </li>
         )}
-      {user_role !== null &&  (<li>
-          <button onClick={handleLogOut}>Log out</button>
-        </li>)}
+        {user_role !== null && (
+          <li>
+            <button onClick={handleLogOut}>Log out</button>
+          </li>
         )}
-      {user_role !== null &&  
-        (<li>
-          <button onClick={handleLogOut}>Log out</button>
-        </li>)
-        }
 
         {/* Add more navigation links */}
       </ul>
