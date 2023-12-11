@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import "./doctorhome.css";
 import { patients } from "./patients_db";
 import { v4 as uuid } from "uuid";
-import { Navigate } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useNavigate, Link } from "react-router-dom";
+import PatientProfile from "../PatientProfile/PatientProfile";
 import {
   Button,
   Form,
@@ -17,50 +17,47 @@ import {
 } from "reactstrap";
 
 export default function DoctorHome() {
+  const navigate = useNavigate();
   const userId = localStorage.getItem("user_id");
 
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
   let [firstname, setFirstname] = React.useState("");
   let [lastname, setLastname] = React.useState("");
   let [datevalue, setDate] = React.useState("");
   let [patLst, setPatLst] = React.useState([]);
   let [selectedPat, setSelectedPat] = React.useState(null);
-  let [count, setCount] = React.useState(patLst.length);
-
-
 
   useEffect(() => {
     const fetchDate = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:5000/get_patients_by_doctor_id", {
-          method: "POST",
-          mode: "cors",
-          body: JSON.stringify({ user_id: userId }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          "http://127.0.0.1:5000/get_patients_by_doctor_id",
+          {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({ user_id: userId }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         const result = await response.json();
         console.log(result);
         if (result.Result === "Success") {
-          if (result.Data !== null){
+          if (result.Data !== null) {
             setPatLst(result.Data);
-            console.log(patLst)
-
+            console.log(patLst);
           }
-          
         }
       } catch (error) {
         alert(error);
       }
     };
 
-    fetchDate()
+    fetchDate();
   }, [userId]);
-
 
   const filteredPat = patLst.filter(
     (item) =>
@@ -68,13 +65,14 @@ export default function DoctorHome() {
       item[1].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSelectEmp = (empId, firstName, lastName) => {
+  const handleSelectPat = (userId, firstName, lastName) => {
     setSelectedPat({
-      employeeId: empId,
+      userId: userId,
       firstName: firstName,
       lastName: lastName,
     });
-    setIsModalOpen(!isModalOpen);
+    navigate('/patientprofile', { state: { userId: userId } });
+
   };
 
   const handleSearchQueryChange = (event) => {
@@ -85,19 +83,19 @@ export default function DoctorHome() {
     event.preventDefault();
   };
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+  // const toggleModal = () => {
+  //   setIsModalOpen(!isModalOpen);
+  // };
 
-  const toggleAddModal = () => {
-    setIsAddModalOpen(!isAddModalOpen);
-  };
+  // const toggleAddModal = () => {
+  //   setIsAddModalOpen(!isAddModalOpen);
+  // };
 
-  const closeBtn = (
-    <button className="close " onClick={toggleModal} type="button">
-      &times;
-    </button>
-  );
+  // const closeBtn = (
+  //   <button className="close " onClick={toggleModal} type="button">
+  //     &times;
+  //   </button>
+  // );
 
   return (
     <div className="homebg">
@@ -128,42 +126,25 @@ export default function DoctorHome() {
 
             <div className="  d-flex justify-content-center ">
               <div className="list-container">
-                {filteredPat.length === 0 && 
-                  <div>
-                    No patients assigned yet!
-
-                  </div>}
-                <ul className="list-group em_list">
-                  {filteredPat && filteredPat.map((pat) => (
-                    <li className="list-group-item em btn">
-                      <p>
-                        {pat[0]} {pat[1]}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-
-                {selectedPat && (
-                  <Modal
-                    isOpen={isModalOpen}
-                    toggle={toggleModal}
-                    className="my-emp-modal"
-                  >
-                    <ModalHeader
-                      toggle={toggleModal}
-                      className="modal-head"
-                      close={closeBtn}
-                    >
-                      {selectedPat.firstName + " " + selectedPat.lastName}
-                    </ModalHeader>
-                  </Modal>
+                {filteredPat.length === 0 && (
+                  <div>No patients assigned yet!</div>
                 )}
+                <ul className="list-group em_list">
+                  {filteredPat &&
+                    filteredPat.map((pat) => (
+                      <li className="list-group-item em btn">
+                        <Link to="/patientprofile" state={{ userId: pat[2] }}>
+                          {pat[0]} {pat[1]}
+                          </Link>
+                      </li>
+                    ))}
+                </ul>
               </div>
             </div>
 
             <div className="metric mt-5 ">
               <button className="btn count-btn" type="submit">
-                Patients Counted: {count}
+                Patients Counted: {patLst.length}
               </button>
             </div>
           </div>
