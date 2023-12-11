@@ -213,7 +213,8 @@ def get_patient_data():
                     "weight": patient_data[3],
                     "date_of_birth": patient_data[4].strftime('%Y-%m-%d'),
                     "primary_care_doctor_first_name": doctor_first_name,
-                    "primary_care_doctoc_last_name": doctor_last_name
+                    "primary_care_doctoc_last_name": doctor_last_name,
+                    "docId": doctor_id
                 }
             })
         else:
