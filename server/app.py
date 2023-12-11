@@ -111,16 +111,15 @@ def upload_file():
     try:
         file_handler = FileHandler()
         cur = conn.cursor()
-        print("DAYYYY")
-        print(request.files)
+
         file = request.files['record']
 
         filename = file.filename
-        if filename and file_handler.allowed_file(filename):
-            patient_id = request.json.get('patient_id')
+        if file and file_handler.allowed_file(filename):
+            patient_id = request.form.get('patient_id')
+            
             provided_filename = secure_filename(filename)
-            stored_filename = file_handler.upload_file_to_s3(file, filename)
-
+            stored_filename = file_handler.upload_file_to_s3(file, provided_filename)
             if stored_filename:
                 date = datetime.now()
                 
@@ -232,6 +231,7 @@ def get_patient_data():
                     "date_of_birth": patient_data[3].strftime('%Y-%m-%d'),
                     "primary_care_doctor_first_name": doctor_first_name,
                     "primary_care_doctoc_last_name": doctor_last_name,
+                    "docId": doctor_id,
                     "weight": patient_health_metrics[0],
                     "height": patient_health_metrics[1],
                     "blood_pressure": patient_health_metrics[2],
