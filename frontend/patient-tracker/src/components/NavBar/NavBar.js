@@ -41,13 +41,23 @@ function NavBar() {
           </li>
         )}
           {user_role === null && (
-          <li>
-            <Link to="/">Log In</Link>
-          </li>
+            <div>
+            <li> 
+              <Link to = "/documents"> Documents</Link>
+            </li>
+            <li>
+              <Link to="/">Log In</Link>
+            </li>
+            <li>
+              <Link to="/scheduler">Scheduler</Link>
+            </li>
+          </div>
         )}
-      {user_role !== null &&  <li>
+      {user_role !== null &&  
+        (<li>
           <button onClick={handleLogOut}>Log out</button>
-        </li>}
+        </li>)
+        }
 
         {/* Add more navigation links */}
       </ul>

@@ -5,6 +5,8 @@ import Register from "./components/Register/Register";
 import DoctorHome from "./components/DoctorHome/DoctorHome";
 import PatientHome from "./components/PatientHome/PatientHome";
 import DoctorAppointment from "./components/DocApt/DoctorAppointment";
+import Documents from "./components/Documents/Documents";
+import Scheduler from "./components/Scheduler/Scheduler";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar/NavBar";
 import { Nav } from "reactstrap";
@@ -34,7 +36,9 @@ function App() {
               <Route path="/listfiles" element={<ListFiles />} />
               <Route path="/patientprofile" element={<PatientProfile />} />
             </Route>
-          </Routes>
+            <Route path="/documents" element={<Documents />} />
+          <Route path="/scheduler" element={<Scheduler />}/>
+        </Routes>
         </div>
       </div>
     </BrowserRouter>
