@@ -175,7 +175,7 @@ def get_patient_data():
         user_id = request.json.get('user_id')
         cur = conn.cursor()
         get_user_info_query = """
-                SELECT u.first_name, u.last_name, p.height, p.weight, p.date_of_birth, p.primary_care_doctor_id
+                SELECT u.first_name, u.last_name, p.patient_id, p.date_of_birth, p.primary_care_doctor_id
                 FROM patient p
                 JOIN system_user u
                 ON p.user_id = u.user_id
@@ -184,7 +184,26 @@ def get_patient_data():
         cur.execute(get_user_info_query, (user_id,))
         patient_data = cur.fetchone()
 
-        doctor_id = patient_data[5]
+        patient_id = patient_data[2]
+        get_patient_health_metrics = """
+                SELECT
+                    (SELECT weight FROM health_metrics WHERE patient_id = %s AND weight IS NOT NULL ORDER BY measurement_date DESC LIMIT 1) AS latest_weight,
+                    (SELECT height FROM health_metrics WHERE patient_id = %s AND height IS NOT NULL ORDER BY measurement_date DESC LIMIT 1) AS latest_height,
+                    (SELECT blood_pressure FROM health_metrics WHERE patient_id = %s AND blood_pressure IS NOT NULL ORDER BY measurement_date DESC LIMIT 1) AS latest_blood_pressure,
+                    (SELECT heart_rate FROM health_metrics WHERE patient_id = %s AND heart_rate IS NOT NULL ORDER BY measurement_date DESC LIMIT 1) AS latest_heart_rate
+                FROM health_metrics
+                WHERE patient_id = %s
+                ORDER BY measurement_date DESC
+                LIMIT 1;
+            """
+        cur.execute(get_patient_health_metrics, (patient_id, patient_id, patient_id, patient_id, patient_id,))
+        patient_health_metrics = cur.fetchone()
+
+        #No recorded patient's health metrics
+        if patient_health_metrics is None:
+            patient_health_metrics = [None, None, None, None]
+
+        doctor_id = patient_data[4]
         doctor_first_name = None
         doctor_last_name = None
         if doctor_id is not None:
@@ -203,18 +222,20 @@ def get_patient_data():
             doctor_name = cur.fetchone()
             doctor_first_name = doctor_name[0]
             doctor_last_name = doctor_name[1]
-            
+
         if patient_data:
             return jsonify({
                 "Result": "Success",
                 "Data": {
                     "first_name": patient_data[0],
                     "last_name": patient_data[1],
-                    "height": patient_data[2],
-                    "weight": patient_data[3],
-                    "date_of_birth": patient_data[4].strftime('%Y-%m-%d'),
+                    "date_of_birth": patient_data[3].strftime('%Y-%m-%d'),
                     "primary_care_doctor_first_name": doctor_first_name,
-                    "primary_care_doctoc_last_name": doctor_last_name
+                    "primary_care_doctoc_last_name": doctor_last_name,
+                    "weight": patient_health_metrics[0],
+                    "height": patient_health_metrics[1],
+                    "blood_pressure": patient_health_metrics[2],
+                    "heart_rate": patient_health_metrics[3]
                 }
             })
         else:
@@ -231,7 +252,7 @@ def get_patients_by_doctor_id():
         cur = conn.cursor()
 
         query = """
-                SELECT u.first_name, u.last_name, u.user_id
+                SELECT u.first_name, u.last_name, u.user_id, p.patient_id
                 FROM patient p
                 JOIN system_user u
                 ON p.user_id = u.user_id
@@ -408,6 +429,29 @@ def delete_appointment():
             WHERE appointment_id = %s
         """
         cur.execute(query, (appointment_id, ))
+        conn.commit()
+        return jsonify({"Result": "Success"})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+
+#insert new health metrics
+@app.route('/insert_health_metrics', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def insert_health_metrics():
+    try:
+        cur = conn.cursor()
+        patient_id = request.get_json("patient_id")
+        height = request.get_json("height")
+        weight = request.get_json("weight")
+        blood_pressure = request.get_json("blood_pressure")
+        heart_rate = request.get_json("heart_rate")
+        query = """
+            INSERT INTO health_metrics (patient_id, weight, height, blood_pressure, heart_rate, measurement_date)
+            VALUES( %s, %s, %s, %s, %s, current_timestamp)
+        """
+        cur.execute(query, (patient_id, weight, height, blood_pressure, heart_rate, ))
         conn.commit()
         return jsonify({"Result": "Success"})
 
