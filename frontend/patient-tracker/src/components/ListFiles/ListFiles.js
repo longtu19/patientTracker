@@ -13,12 +13,11 @@ function update() {
 function ListFiles() {
   //const [userId, setUserId] = useState(14);
   const roleId = localStorage.getItem("role_id");
-  console.log(roleId)
-  
+  console.log(roleId);
+
   const [file, setFile] = useState(null);
   const [listFiles, setListFiles] = React.useState({});
   const [uploadTrigger, setUploadTrigger] = useState(false); // New state variable
-
 
   useEffect(() => {
     const fetchDate = async () => {
@@ -26,7 +25,7 @@ function ListFiles() {
         const response = await fetch("http://127.0.0.1:5000/get_file_urls", {
           method: "POST",
           mode: "cors",
-          body: JSON.stringify({ patient_id: roleId}),
+          body: JSON.stringify({ patient_id: roleId }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -49,7 +48,7 @@ function ListFiles() {
     });
     const user = await response.json();
     if (user.Result === "Success") {
-      alert("Successfully uploaded file")
+      alert("Successfully uploaded file");
       setUploadTrigger(!uploadTrigger);
     } else {
       alert("Failed to upload file. Please try again.");
@@ -58,12 +57,13 @@ function ListFiles() {
 
   const onFileChange = (event) => {
     // setFile(event.target.files[0]);
-    const selectedFile = event.target.files[0]
-    console.log(selectedFile)
-    let formData = new FormData();
-    formData.append('record', selectedFile);
-    formData.append('patient_id', roleId)
-    handleUploadFile(formData);
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      let formData = new FormData();
+      formData.append("record", selectedFile);
+      formData.append("patient_id", roleId);
+      handleUploadFile(formData);
+    }
   };
 
   return (
@@ -82,7 +82,6 @@ function ListFiles() {
               {Object.entries(listFiles).map(([filename, url]) => (
                 <li className="list-group-item em btn">
                   <a href={url}>{filename}</a>
-                  
                 </li>
               ))}
             </ul>

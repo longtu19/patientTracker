@@ -28,10 +28,16 @@ function NavBar() {
           </li>
         )}
         {user_role === "patient" && (
-            <li>
-              <Link to="/listfiles"> Documents</Link>
-            </li>
-          )}
+          <li>
+            <Link to="/listfiles"> Documents</Link>
+          </li>
+        )}
+
+        {user_role === "patient" && (
+          <li>
+            <Link to="/scheduler"> Scheduler</Link>
+          </li>
+        )}
         {user_role !== null && (
           <li>
             <Link to="/doctorappointment">Appointments</Link>
