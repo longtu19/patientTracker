@@ -403,22 +403,7 @@ def update_appointment():
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})
-    
-connected_users = {}  # Dictionary to track connected users
 
-@socketio.on('connect', namespace='/patient_notification')
-def handle_connect():
-    patient_id = request.args.get('patient_id')
-    session_id = request.sid  # Get the socket session ID
-    connected_users[patient_id] = session_id
-    print(f'Patient {patient_id} connected with session ID {session_id}')
-
-@socketio.on('disconnect', namespace='/patient_notification')
-def handle_disconnect():
-    patient_id = connected_users.get(request.sid)
-    if patient_id in connected_users:
-        del connected_users[patient_id]
-    print(f'Patient {patient_id} disconnected')
 
 #Route for deleting an appointment
 @app.route('/delete_appointment', methods = ["POST", "GET"])
@@ -438,6 +423,40 @@ def delete_appointment():
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})
+
+@app.route('/get_appointments', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def get_appointments():
+    try:
+        cur = conn.cursor()
+        patient_id = request.get_json("patient_id")
+        query = """
+            SELECT * FROM appointment
+            WHERE patient_id = %s
+        """
+        cur.execute(query, (patient_id, ))
+        appointments = cur.fetchall()
+        return jsonify({"Result": "Success", "Appointments": appointments})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+    
+connected_users = {}  # Dictionary to track connected users
+
+@socketio.on('connect', namespace='/patient_notification')
+def handle_connect():
+    patient_id = request.args.get('patient_id')
+    session_id = request.sid  # Get the socket session ID
+    connected_users[patient_id] = session_id
+    print(f'Patient {patient_id} connected with session ID {session_id}')
+
+@socketio.on('disconnect', namespace='/patient_notification')
+def handle_disconnect():
+    patient_id = connected_users.get(request.sid)
+    if patient_id in connected_users:
+        del connected_users[patient_id]
+    print(f'Patient {patient_id} disconnected')
 
 #insert new health metrics
 @app.route('/insert_health_metrics', methods = ["POST", "GET"])
