@@ -5,31 +5,50 @@ const time = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
 
 function Times(props) {
   const timeObj = props.timeList;
-
+  const [selectedTime, setSelectedTime] = useState(null);
   const [event, setEvent] = useState(null);
   const [info, setInfo] = useState(false);
   let selectedDate = props.date;
 
+  const formatTime = (selectedDate, selectedTime) => {
+    const [startTime, endTime] = selectedTime.split("-");
+
+    const formattedStartTime = `${selectedDate} ${startTime}`;
+    const formattedEndTime = `${selectedDate} ${endTime}`;
+
+    // Replace '-' with '/' in the date for the desired format
+    const finalFormattedStartTime = formattedStartTime.replace(/-/g, "/");
+    const finalFormattedEndTime = formattedEndTime.replace(/-/g, "/");
+
+    return {
+      startTime: finalFormattedStartTime,
+      endTime: finalFormattedEndTime,
+    };
+  };
+
   const makeApt = async (time) => {
-    console.log("make apt")
-    let timeSplit = time.split("-")
+    let selectedTimeObj = formatTime(selectedDate, selectedTime)
     const response = await fetch("http://127.0.0.1:5000/make_appointment", {
       method: "POST",
       mode: "cors",
-      body: JSON.stringify({ start_time: timeSplit[0], end_time: timeSplit[1], patient_id: props.patId, doctor_id: props.docId }),
+      body: JSON.stringify({
+        start_time: selectedTimeObj["startTime"],
+        end_time: selectedTimeObj["endTime"],
+        patient_id: props.patId,
+        doctor_id: props.docId,
+      }),
       headers: {
         "Content-Type": "application/json",
       },
     });
 
-    const res = await response.json()
-    console.log(res)
-    if (res.Result === "Success"){
-        console.log("oke chua")
-        alert("Your appointment is set on " + selectedDate + time + "!")
-    }
-    else{
-        alert("Error making appointment at this time. Please try again late!")
+    const res = await response.json();
+    console.log(res);
+    if (res.Result === "Success") {
+      console.log("oke chua");
+      alert("Your appointment is set on " + selectedDate + " " + time + "!");
+    } else {
+      alert("Error making appointment at this time. Please try again late!");
     }
   };
 
@@ -44,7 +63,17 @@ function Times(props) {
         timeObj[selectedDate].map((time) => {
           return (
             <div className="timeSlot">
-              <button onClick={() => makeApt(time)}> {time} </button>
+              <input
+                class="form-check-input"
+                type="radio"
+                value={time}
+                name="free-time"
+                onChange={() => setSelectedTime(time)}
+              />
+              <label className="form-check-label" for="inlineCheckbox1">
+                {" "}
+                {time}
+              </label>{" "}
             </div>
           );
         })}
@@ -56,6 +85,13 @@ function Times(props) {
           ? `Your appointment is set to ${event} ${selectedDate}`
           : null}
       </div>
+      {timeObj[selectedDate] && (
+        <div className="aptButton">
+          <button onClick={() => makeApt(selectedTime)}>
+            Make Appointment
+          </button>
+        </div>
+      )}
     </div>
   );
 }

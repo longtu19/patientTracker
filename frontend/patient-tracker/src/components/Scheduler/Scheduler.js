@@ -52,17 +52,20 @@ function Scheduler() {
   return (
     <div className="container">
       <div className="row">
-        <div className="calendar col-2">
+        <div className="calendar col-1">
           <Calendar
             onChange={setDate}
             value={date}
             onClickDay={() => setShowTime(true)}
           />
         </div>
+
         <div className="col-2">
+          <h2 className="av">Availability</h2>
           {showTime && <Time date={formatDate(date)} timeList={timeList} docId = {docId} patId = {patId} />}
         </div>
       </div>
+
     </div>
   );
 }
