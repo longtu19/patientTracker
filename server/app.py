@@ -286,7 +286,6 @@ def get_appointment_times():
 
         # All available hours of a doctor during a week
         available_week_times = appointment_handler.available_times_in_week(doctor_id)
-        print(available_week_times)
 
         # The 7 days and corresponding weekdays based on the user inputted date
         date_list, weekday_list = appointment_handler.get_seven_days(date)
@@ -309,7 +308,7 @@ def get_appointment_times():
                 """
             cur.execute(query, (doctor_id, day, "Scheduled", ))
             day_appointments = cur.fetchall()
-            
+
             # List of times in which the doctor is unavailable
             unavailable_timeframes = []
 
