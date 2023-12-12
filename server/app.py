@@ -470,8 +470,10 @@ def get_appointments_by_doctor_id():
             entry = cur.fetchone()
             first_name = entry[0]
             last_name = entry[1]
-            appointment_info = [first_name, last_name]
-            appointment_info.extend(appointment[:])
+            appointment_info = []
+            appointment_info.extend(appointment[:6])
+            appointment_info.extend([first_name, last_name])
+            appointment_info.extend(appointment[6:])
             result.append(appointment_info)
         return jsonify({"Result": "Success", "Appointments": result})
 
