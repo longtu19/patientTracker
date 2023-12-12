@@ -298,8 +298,9 @@ def get_appointment_times():
         for day, weekday in zip(date_list, weekday_list):
             # Only returns appointments from or after today's date, and if the weekday is within the doctor's available days
             current_datetime = datetime.strptime(day, '%Y-%m-%d')
-            
-            if current_datetime < datetime.now() or weekday not in available_week_times: continue
+            day_difference = (datetime.now() - current_datetime).days
+            if day_difference > 0 or weekday not in available_week_times: continue
+
             # Finds all the scheduled appointments related to a specific doctor and on a specific weekday
             query = """
                     SELECT start_time, end_time
@@ -323,7 +324,7 @@ def get_appointment_times():
             
             #Retrieves times within the available times that are not in the unavailable timeframes
             all_available_times[day] = list(set(available_week_times[weekday]) - set(unavailable_timeframes))
-
+            
         return jsonify({"Result": "Success", "Times": all_available_times})
     except Exception as e:
         print(e)

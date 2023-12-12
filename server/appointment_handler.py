@@ -34,7 +34,7 @@ class AppointmentHandler:
                     FROM doctor_work_hours
                     WHERE doctor_id = %s
                 """
-            cur.execute(query, (4, ))
+            cur.execute(query, (doctor_id, ))
             total = cur.fetchall()
             available = defaultdict(list)
             for entry in total:
@@ -100,5 +100,5 @@ class AppointmentHandler:
 
 if __name__ == "__main__":
     appointment_handler = AppointmentHandler()
-    print(appointment_handler.available_times_in_week(2))
+    print(appointment_handler.available_times_in_week(4))
 
