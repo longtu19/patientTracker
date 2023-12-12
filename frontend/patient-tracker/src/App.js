@@ -4,7 +4,7 @@ import LogIn from "./components/LogIn/LogIn";
 import Register from "./components/Register/Register";
 import DoctorHome from "./components/DoctorHome/DoctorHome";
 import PatientHome from "./components/PatientHome/PatientHome";
-import DoctorAppointment from "./components/DocApt/DoctorAppointment";
+import Appointments from "./components/Appointments/Appointments";
 import Documents from "./components/Documents/Documents";
 import Scheduler from "./components/Scheduler/Scheduler";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -13,7 +13,7 @@ import { Nav } from "reactstrap";
 import ProtectedRoute from "../src/components/ProtectedRoute/ProtectedRoute";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import ListFiles from "./components/ListFiles/ListFiles";
-import PatientProfile from "./components/PatientProfile/PatientProfile"
+import PatientProfile from "./components/PatientProfile/PatientProfile";
 
 function App() {
   return (
@@ -28,17 +28,14 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route element={<PrivateRoute />}>
               <Route path="/doctorhome" element={<DoctorHome />} />
-              <Route
-                path="/doctorappointment"
-                element={<DoctorAppointment />}
-              />
+              <Route path="/appointments" element={<Appointments />} />
               <Route path="/patienthome" element={<PatientHome />} />
               <Route path="/listfiles" element={<ListFiles />} />
               <Route path="/patientprofile" element={<PatientProfile />} />
+              <Route path="/documents" element={<Documents />} />
+              <Route path="/scheduler" element={<Scheduler />} />
             </Route>
-            <Route path="/documents" element={<Documents />} />
-          <Route path="/scheduler" element={<Scheduler />}/>
-        </Routes>
+          </Routes>
         </div>
       </div>
     </BrowserRouter>

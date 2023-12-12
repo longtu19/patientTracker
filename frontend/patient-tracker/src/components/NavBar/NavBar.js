@@ -40,7 +40,7 @@ function NavBar() {
         )}
         {user_role !== null && (
           <li>
-            <Link to="/doctorappointment">Appointments</Link>
+            <Link to="/appointments">Appointments</Link>
           </li>
         )}
         {user_role === null && (

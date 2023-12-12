@@ -45,7 +45,6 @@ function Times(props) {
     const res = await response.json();
     console.log(res);
     if (res.Result === "Success") {
-      console.log("oke chua");
       alert("Your appointment is set on " + selectedDate + " " + time + "!");
     } else {
       alert("Error making appointment at this time. Please try again late!");
