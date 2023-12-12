@@ -424,9 +424,9 @@ def delete_appointment():
         print(e)
         return jsonify({"Result": "Error"})
 
-@app.route('/get_appointments', methods = ["POST", "GET"])
+@app.route('/get_appointments_by_patient_id', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
-def get_appointments():
+def get_appointments_by_patient_id():
     try:
         cur = conn.cursor()
         patient_id = request.get_json("patient_id")
@@ -441,7 +441,25 @@ def get_appointments():
     except Exception as e:
         print(e)
         return jsonify({"Result": "Error"})
-    
+
+@app.route('/get_appointments_by_doctor_id', methods = ["POST", "GET"])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def get_appointments_by_doctor_id():
+    try:
+        cur = conn.cursor()
+        doctor_id = request.get_json("doctor_id")
+        query = """
+            SELECT * FROM appointment
+            WHERE doctor_id = %s
+        """
+        cur.execute(query, (doctor_id, ))
+        appointments = cur.fetchall()
+        return jsonify({"Result": "Success", "Appointments": appointments})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"Result": "Error"})
+        
 connected_users = {}  # Dictionary to track connected users
 
 @socketio.on('connect', namespace='/patient_notification')
