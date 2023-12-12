@@ -9,22 +9,19 @@ function formatDate(originalDate) {
   const month = (originalDate.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-based, so we add 1
   const day = originalDate.getDate().toString().padStart(2, "0");
   const res = `${year}-${month}-${day}`;
-  return res
-
+  return res;
 }
 
 function Scheduler() {
   const [date, setDate] = useState(new Date());
   const [showTime, setShowTime] = useState(false);
   const docId = localStorage.getItem("docId");
-  const [timeList, setTimeList] = useState([]);
+  const [timeList, setTimeList] = useState({});
 
   useEffect(() => {
     const fetchDate = async () => {
+      const formattedDate = formatDate(date);
       try {
-       const formattedDate = formatDate(date)
-       console.log(formattedDate)
-       console.log(docId)
         const response = await fetch(
           "http://127.0.0.1:5000/get_appointment_times",
           {
@@ -40,11 +37,8 @@ function Scheduler() {
           }
         );
         const result = await response.json();
-        console.log(result);
         if (result.Result === "Success") {
           setTimeList(result.Times);
-          console.log("TIme here");
-          console.log(timeList);
         }
       } catch (error) {
         alert(error);
@@ -79,7 +73,7 @@ function Scheduler() {
             {date.toDateString()}
           </p>
         )}
-        {showTime && <Time date={date} timeList={timeList} />}
+        {showTime && <Time date={formatDate(date)} timeList={timeList} />}
       </div>
     </div>
   );
