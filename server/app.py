@@ -471,7 +471,7 @@ def get_appointments_by_doctor_id():
             appointment_info = [first_name, last_name]
             appointment_info.extend(appointment[:])
             result.append(appointment_info)
-        return jsonify({"Result": "Success", "Appointments": appointments})
+        return jsonify({"Result": "Success", "Appointments": result})
 
     except Exception as e:
         print(e)
