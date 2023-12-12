@@ -446,7 +446,7 @@ def get_appointments_by_patient_id():
 def get_appointments_by_doctor_id():
     try:
         cur = conn.cursor()
-        doctor_id = request.get_json("doctor_id")
+        doctor_id = request.json.get("doctor_id")
         query = """
             SELECT * FROM appointment
             WHERE doctor_id = %s
@@ -463,14 +463,18 @@ def get_appointments_by_doctor_id():
             cur.execute(query, (patient_id, ))
             user_id = cur.fetchone()[0]
             query = """
-                SELECT (first_name, last_name) FROM System_user
+                SELECT first_name, last_name FROM System_user
                 WHERE user_id = %s
             """
             cur.execute(query, (user_id, ))
-            first_name, last_name = cur.fetchone()
+            print("day chua")
+            print(cur.fetchall())
+            first_name, last_name = cur.fetchall()[0]
+            print(first_name)
             appointment_info = [first_name, last_name]
             appointment_info.extend(appointment[:])
             result.append(appointment_info)
+            print(result)
         return jsonify({"Result": "Success", "Appointments": result})
 
     except Exception as e:
