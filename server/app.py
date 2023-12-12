@@ -323,8 +323,8 @@ def get_appointment_times():
                 unavailable_timeframes.append(timeframe)
             
             #Retrieves times within the available times that are not in the unavailable timeframes
-            all_available_times[day] = list(set(available_week_times[weekday]) - set(unavailable_timeframes))
-            
+            all_available_times[day] = sorted(list(set(available_week_times[weekday]) - set(unavailable_timeframes)))
+
         return jsonify({"Result": "Success", "Times": all_available_times})
     except Exception as e:
         print(e)
