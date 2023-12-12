@@ -55,9 +55,12 @@ class AppointmentHandler:
                 if end < start: end = end + 24
 
                 # Formats the total available timeframe into 1-hour timeframes
-                for time in range(start, end):
-                    cur = str(time % 24) + ":00:00-"
-                    next = str((time + 1) % 24) + ":00:00"
+                for hour in range(start, end):
+                    cur = "0" if hour // 10 == 0 else ""
+                    cur += str(hour % 24) + ":00:00-"
+                    
+                    next = "0" if (hour + 1) // 10 == 0 else ""
+                    next += str((hour + 1) % 24) + ":00:00"
                     working_hours.append(cur + next)
 
                 # Each weekday would have different available 1-hour timeframes

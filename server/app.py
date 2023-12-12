@@ -309,7 +309,6 @@ def get_appointment_times():
                 """
             cur.execute(query, (doctor_id, day, "Scheduled", ))
             day_appointments = cur.fetchall()
-
             # List of times in which the doctor is unavailable
             unavailable_timeframes = []
 
@@ -319,12 +318,12 @@ def get_appointment_times():
                 # the string accordingly. The 1st index of the split is what we want, hour:minute:second
                 start = appointment[0].strftime("%Y-%m-%d %H:%M:%S").split(" ")[1]
                 end = appointment[1].strftime("%Y-%m-%d %H:%M:%S").split(" ")[1]
+
                 timeframe = start + "-" + end
                 unavailable_timeframes.append(timeframe)
-            
+
             #Retrieves times within the available times that are not in the unavailable timeframes
             all_available_times[day] = sorted(list(set(available_week_times[weekday]) - set(unavailable_timeframes)))
-
         return jsonify({"Result": "Success", "Times": all_available_times})
     except Exception as e:
         print(e)
