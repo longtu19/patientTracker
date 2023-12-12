@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "reactstrap";
-import "./PatientProfile.css"
+import "./PatientProfile.css";
 import { useLocation } from "react-router-dom";
 
 function PatientProfile() {
   //const [userId, setUserId] = useState(14);
   const location = useLocation();
-  console.log(location)
   const state = location.state;
-  const userId = state.userId ;
+  const userId = state.userId;
+  const patId = state.patId;
   const [patient, setPatient] = useState({});
+  const [listFiles, setListFiles] = React.useState({});
+
   useEffect(() => {
     const fetchDate = async () => {
       try {
@@ -27,6 +29,17 @@ function PatientProfile() {
         if (result.Result === "Success") {
           setPatient(result.Data);
         }
+
+        const response2 = await fetch("http://127.0.0.1:5000/get_file_urls", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ patient_id: patId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result2 = await response2.json();
+        setListFiles(result2);
       } catch (error) {
         alert(error);
       }
@@ -37,7 +50,8 @@ function PatientProfile() {
 
   return (
     <div>
-      <div className="info-card">
+      <h5 className="title">Patient Profile</h5>
+      <div className="info-card-pat-profile">
         <div className="patBox">
           <p>First Name: {patient.first_name}</p>
           <p>Last Name: {patient.last_name}</p>
@@ -49,6 +63,28 @@ function PatientProfile() {
             {patient.primary_care_doctoc_last_name}
           </p>
         </div>
+      </div>
+      <h5 className="title">Documents</h5>
+
+      <div className="list-files">
+        {Object.keys(listFiles).length === 0 && (
+          <div>
+            <p>
+              No documents for this patient yet!
+            </p>
+          </div>
+        )}
+        {Object.keys(listFiles).length > 0 && (
+          <div>
+            <ul className="list-group em_list">
+              {Object.entries(listFiles).map(([filename, url]) => (
+                <li className="list-group-item em btn">
+                  <a href={url}>{filename}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

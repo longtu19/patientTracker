@@ -83,20 +83,6 @@ export default function DoctorHome() {
     event.preventDefault();
   };
 
-  // const toggleModal = () => {
-  //   setIsModalOpen(!isModalOpen);
-  // };
-
-  // const toggleAddModal = () => {
-  //   setIsAddModalOpen(!isAddModalOpen);
-  // };
-
-  // const closeBtn = (
-  //   <button className="close " onClick={toggleModal} type="button">
-  //     &times;
-  //   </button>
-  // );
-
   return (
     <div className="homebg">
       <div className="container d-flex justify-content-center align-items-center  ">
@@ -133,7 +119,7 @@ export default function DoctorHome() {
                   {filteredPat &&
                     filteredPat.map((pat) => (
                       <li className="list-group-item em btn">
-                        <Link to="/patientprofile" state={{ userId: pat[2] }}>
+                        <Link to="/patientprofile" state={{ userId: pat[2], patId: pat[3] }}>
                           {pat[0]} {pat[1]}
                           </Link>
                       </li>

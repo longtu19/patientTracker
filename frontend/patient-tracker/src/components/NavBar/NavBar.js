@@ -8,8 +8,7 @@ function NavBar() {
   const navigate = useNavigate();
   const user_role = localStorage.getItem("user_role");
   const handleLogOut = () => {
-    localStorage.removeItem("user_role");
-    localStorage.removeItem("user_id");
+    localStorage.clear()
     navigate("/");
   };
   return (

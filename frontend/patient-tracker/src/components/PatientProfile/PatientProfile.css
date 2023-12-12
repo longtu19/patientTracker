@@ -1,6 +1,21 @@
 .patBox{
-    margin-left: 7%;
+    margin-left: 2%;
     text-align: left;
     text-transform: capitalize;
     padding-bottom: 1px;
+    padding-top: 15px;
 }
+
+.info-card-pat-profile{
+    background-color: aliceblue;
+    width: 82%;
+    margin-left: 16%;
+    margin-top: 1%;
+}
+
+.title{
+    margin-right: 59%;
+    margin-top: 2%;
+
+}
+

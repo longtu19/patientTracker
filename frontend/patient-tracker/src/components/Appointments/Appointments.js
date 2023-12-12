@@ -70,16 +70,25 @@ function Appointments() {
       <div className="aptBox">
         <div className="list-container justify-content-center align-items-center">
           {aptDetails.map((apt) => (
-            <div className="card patientAptCard mt-3">
-              <div class="card-header">
-                {patFName} {patLName}
-              </div>
+            <div className="card patientAptCard mb-3">
+              {user_role === "patient" && (
+                <div class="card-header">
+                  {patFName} {patLName}
+                </div>
+              )}
+              {user_role === "doctor" && (
+                <div class="card-header">
+                  {apt[6]} {apt[7]}
+                </div>
+              )}
               <div className="card-body text-start">
                 <p className="card-text">Start Time: {apt[4]}</p>
                 <p className="card-text">End Time: {apt[5]}</p>
-                <p className="card-text">
-                  Doctor: {docFName} {docLName}
-                </p>
+                {user_role === "patient" && (
+                  <p className="card-text">
+                    Doctor: {docFName} {docLName}
+                  </p>
+                )}
               </div>
             </div>
           ))}
