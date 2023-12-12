@@ -316,8 +316,8 @@ def get_appointment_times():
             for appointment in day_appointments:
                 # Since the times are formated in year/month/day hour:minute:second, we'd have to split
                 # the string accordingly. The 1st index of the split is what we want, hour:minute:second
-                start = appointment[0].split(" ")[1]
-                end = appointment[1].split(" ")[1]
+                start = appointment[0].strftime("%Y-%m-%d %H:%M:%S").split(" ")[1]
+                end = appointment[1].strftime("%Y-%m-%d %H:%M:%S").split(" ")[1]
                 timeframe = start + "-" + end
                 unavailable_timeframes.append(timeframe)
             
