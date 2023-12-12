@@ -221,6 +221,7 @@ def get_patient_data():
             doctor_name = cur.fetchone()
             doctor_first_name = doctor_name[0]
             doctor_last_name = doctor_name[1]
+            
 
         if patient_data:
             return jsonify({
@@ -230,7 +231,7 @@ def get_patient_data():
                     "last_name": patient_data[1],
                     "date_of_birth": patient_data[3].strftime('%Y-%m-%d'),
                     "primary_care_doctor_first_name": doctor_first_name,
-                    "primary_care_doctoc_last_name": doctor_last_name,
+                    "primary_care_doctor_last_name": doctor_last_name,
                     "docId": doctor_id,
                     "weight": patient_health_metrics[0],
                     "height": patient_health_metrics[1],
@@ -285,7 +286,6 @@ def get_appointment_times():
 
         # All available hours of a doctor during a week
         available_week_times = appointment_handler.available_times_in_week(doctor_id)
-        print(available_week_times)
 
         # The 7 days and corresponding weekdays based on the user inputted date
         date_list, weekday_list = appointment_handler.get_seven_days(date)
@@ -308,7 +308,6 @@ def get_appointment_times():
                 """
             cur.execute(query, (doctor_id, day, "Scheduled", ))
             day_appointments = cur.fetchall()
-            print("otaku")
 
             # List of times in which the doctor is unavailable
             unavailable_timeframes = []
@@ -429,7 +428,7 @@ def delete_appointment():
 def get_appointments_by_patient_id():
     try:
         cur = conn.cursor()
-        patient_id = request.get_json("patient_id")
+        patient_id = request.json.get("patient_id")
         query = """
             SELECT * FROM appointment
             WHERE patient_id = %s

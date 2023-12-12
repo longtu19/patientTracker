@@ -30,6 +30,10 @@ function PatientHome() {
         if (result.Result === "Success") {
           setPatient(result.Data);
           localStorage.setItem('docId', result.Data.docId)
+          localStorage.setItem('docFName', result.Data.primary_care_doctor_first_name)
+          localStorage.setItem('docLName', result.Data.primary_care_doctor_last_name)
+          localStorage.setItem("patFName", result.Data.first_name)
+          localStorage.setItem("patLName", result.Data.last_name)
         }
       } catch (error) {
         alert(error);
@@ -56,7 +60,7 @@ function PatientHome() {
           <p>Height: {patient.height}</p>
           <p>Weight: {patient.weight}</p>
           <p>Date of birth: {patient.date_of_birth}</p>
-          <p>Primary Care Physician: {patient.primary_care_doctor_first_name} {patient.primary_care_doctoc_last_name}</p>
+          <p>Primary Care Physician: {patient.primary_care_doctor_first_name} {patient.primary_care_doctor_last_name}</p>
         </div>
       </div>
       <div className="buttons">
