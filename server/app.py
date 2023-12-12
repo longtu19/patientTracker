@@ -338,14 +338,14 @@ def make_appointment():
         cur = conn.cursor()
 
         #All the necessary info is retrieved from the frontend
-        patient_id = request.get_json("patient_id")
-        doctor_id = request.get_json("doctor_id")
-        start_time = request.get_json("start_time")
-        end_time = request.get_json("end_time")
+        patient_id = request.json.get("patient_id")
+        doctor_id = request.json.get("doctor_id")
+        start_time = request.json.get("start_time")
+        end_time = request.json.get("end_time")
         query = """
             INSERT INTO appointment (patient_id, doctor_id, status, start_time, end_time)
             VALUES (%s, %s, %s, %s, %s)
-        """
+        """ 
         cur.execute(query, (patient_id, doctor_id, "Scheduled", start_time, end_time))
         conn.commit()
         return jsonify({"Result": "Success"})

@@ -14,6 +14,7 @@
 .times {
    font: 200;
    width: 300px;
+   margin-top: 0;
 }
 
 .times Button {
@@ -28,13 +29,36 @@
     background-color: rgb(17, 16, 16);
 }
 
+.timeSlot{
+    margin-bottom: 14px;
+    float: left;
+    font-size: large;
+    
+}
+.timeSlot input[type = "radio"]{
+    margin-right: 9px;
+}
+
 .calendar  {
     width: 600px;
     height: 400px;
     margin-left: 20%;
+    float: right;
 }
 
 .row{
     margin-top: 10%;
 }
+
+.aptButton Button{
+    margin-top: 10em;
+    width: 200px;
+    height: 50px;
+    background-color: antiquewhite;
+    color: black;
+}
+.aptButton Button:hover{
+    background-color: rgb(52, 214, 136);
+}
+
 
