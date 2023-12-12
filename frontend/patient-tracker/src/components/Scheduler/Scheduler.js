@@ -16,6 +16,7 @@ function Scheduler() {
   const [date, setDate] = useState(new Date());
   const [showTime, setShowTime] = useState(false);
   const docId = localStorage.getItem("docId");
+  const patId = localStorage.getItem("role_id")
   const [timeList, setTimeList] = useState({});
 
   useEffect(() => {
@@ -49,31 +50,18 @@ function Scheduler() {
   }, [docId, date]);
 
   return (
-    <div className="background">
-      <div className="calendar">
-        <div>
+    <div className="container">
+      <div className="row">
+        <div className="calendar col-2">
           <Calendar
             onChange={setDate}
             value={date}
             onClickDay={() => setShowTime(true)}
           />
         </div>
-
-        {date.length > 0 ? (
-          <p>
-            <span>Start:</span>
-            {date[0].toDateString()}
-            &nbsp; &nbsp;
-            <span>End:</span>
-            {date[1].toDateString()}
-          </p>
-        ) : (
-          <p>
-            <span>Selected date:</span>
-            {date.toDateString()}
-          </p>
-        )}
-        {showTime && <Time date={formatDate(date)} timeList={timeList} />}
+        <div className="col-2">
+          {showTime && <Time date={formatDate(date)} timeList={timeList} docId = {docId} patId = {patId} />}
+        </div>
       </div>
     </div>
   );

@@ -13,22 +13,28 @@
 
 .times {
    font: 200;
-   justify-content: center;
-   flex-direction: row;
-   padding: 10px;
+   width: 300px;
 }
 
 .times Button {
     color:steelblue;
     background-color: beige;
-    height: 40px;
-    width: 100px;
+    height: 48px;
+    width: 200px;
     box-shadow:none;
     padding: 5px;
 }
+.times Button:hover{
+    background-color: rgb(17, 16, 16);
+}
 
 .calendar  {
-    margin-left: 25%;
-    margin-right: 5%;
-    margin-top: 2%;
+    width: 600px;
+    height: 400px;
+    margin-left: 20%;
 }
+
+.row{
+    margin-top: 10%;
+}
+
