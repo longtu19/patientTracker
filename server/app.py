@@ -9,15 +9,21 @@ from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
 
+# Where we store our handler functions
 from file_handler import FileHandler
 from appointment_handler import AppointmentHandler
 
+# Load environment variables
 load_dotenv()
+
+# Flask app
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# The PostgreSQL instance
 conn = psycopg2.connect(
     host = os.environ.get("ENDPOINT"),
     port = os.environ.get("PORT"),
@@ -30,27 +36,45 @@ conn = psycopg2.connect(
 def index():
     return "Welcome"
 
+# Registers a user into the database
 @app.route('/register', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def register():
     try:
         cur = conn.cursor()
+
+        # Retrieves the email from the frontend request
         email = request.json['email']
+
+        # Fetches all users with the provided email, if one doesn't exist then we create a new user.
+        # Otherwise, we return an error since we can't register an existing email.
         cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
         exists = cur.fetchone()
         if exists:
             return jsonify({"Result": "Error", "Error": "Email is already registered"})
         else:
+            # Password encryption
             password = bcrypt.generate_password_hash(request.json['password'], 10).decode("utf-8")
+
+            # Gets the necessary info from the frontend
             first_name = request.json['first_name']
             last_name = request.json['last_name']
             role = request.json['role']
+
+            # Creates a new user in the system_user table
             cur.execute("INSERT INTO system_user (email, password_hash, first_name, last_name, role) \
                         VALUES (%s, %s, %s, %s, %s)", (email, password, first_name, last_name, role))
             conn.commit()
+
+            # Grabs the user id of the newly registered user
             cur.execute("SELECT * FROM system_user WHERE email = %s", (email, ))
             get_cur_id = cur.fetchone()[0]
 
+            # We have different cases for when a user is a doctor or a patient
+            # If a user is a patient, we retrieve their birthday, sex, and
+            # randomly assign them a primary care doctor, and insert them into the patients table
+            #
+            # If a user is a doctor, we insert them into the doctors table
             if role == "patient":
                 birthday = request.json['birthday']
                 sex = request.json['sex']
@@ -75,25 +99,33 @@ def register():
     except ValueError as e:
         print(e)
         
-
+# Checks the user's credentials and attempts to have them logged in
 @app.route('/login', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def login():
     try:
         cur = conn.cursor()
+
+        # Retrieves the email and password from the frontend request
         email = request.json.get('email')
         password = request.json.get('password')
+
         cur.execute("SELECT user_id, role, password_hash FROM System_user WHERE email = %s", (email, ))
         entry = cur.fetchone()
+
+        # If the email doesn't exist in our database then we return an error
         if not entry:
             return jsonify({"Result": "Error", "Error": "Email is not registered"})
+
+        # Checks that the hash of the inputted password matches that from the database
         if bcrypt.check_password_hash(entry[2], password):
+            # If the user is a doctor, we fetch their doctor id. Otherwise, we fetch their patient id.
+            # We then return it to the frontend
             if entry[1] == "doctor":
                 cur.execute("SELECT doctor_id FROM doctor WHERE user_id = %s", (entry[0], ))
                 doctor_id = cur.fetchone()
                 return {"Result": "Success", "User_ID": entry[0], "Role": entry[1], "Role_ID": doctor_id[0]}
             else:
-                print(entry[0])
                 cur.execute("SELECT patient_id FROM patient WHERE user_id = %s", (entry[0], ))
                 patient_id = cur.fetchone()
                 return {"Result": "Success", "User_ID": entry[0], "Role": entry[1], "Role_ID": patient_id[0]}
@@ -103,24 +135,37 @@ def login():
     except ValueError as e:
         print(e)
 
+# Handles file/medical record uploading from a patient
 @app.route('/upload_file', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def upload_file():
     try:
+        # Creates a new FileHandler object
         file_handler = FileHandler()
         cur = conn.cursor()
 
+        # Retrieves the file from the frontend request
         file = request.files['record']
 
         filename = file.filename
+
+        # If the file exists and the file type is valid (pdf, txt, png), we proceed
+        # Otherwise, we return an error to the frontend
         if file and file_handler.allowed_file(filename):
             patient_id = request.form.get('patient_id')
             
+            # provided_filename is the name of the original file
+            # stored_filename is the name we store on the S3 bucket to avoiud collision.
+            # We added secure_filename for the filename so that the name wouldn't pose a security risk
             provided_filename = secure_filename(filename)
             stored_filename = file_handler.upload_file_to_s3(file, provided_filename)
+
+            # If the stored_filename was successfully returned, we proceed
+            # Otherwise, we return an error
             if stored_filename:
                 date = datetime.now()
                 
+                # Inserts the file into the database with both file names
                 query = """ 
                         INSERT INTO medical_record (provided_filename, stored_filename, patient_id, date) \
                         VALUES (%s, %s, %s, %s)
@@ -134,6 +179,7 @@ def upload_file():
         print(e)
         return jsonify({"Result": "Error"})
 
+# Retrieves the medical record URLs corresponding to a specific patient
 
 @app.route('/get_file_urls', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
@@ -141,6 +187,8 @@ def get_file_urls():
     try:
         file_handler = FileHandler()
         cur = conn.cursor()
+
+        # Retrieves the patient id from the frontend
         patient_id = request.json.get('patient_id')
         
         query = """
@@ -149,13 +197,23 @@ def get_file_urls():
                 WHERE patient_id = %s
             """
         cur.execute(query, (patient_id, ))
+
+        # Grabs all of the file names from the table
         file_list = cur.fetchall()
+
+        # The resulting dictionary of URLS, where the key corresponds to the file name and the
+        # value corresponds to the URL
         result = defaultdict(str)
         for file in file_list:
             provided = file[0]
             stored = file[1]
+
+            # Since the S3 bucket only returns temporary URLs, we cannot store them in the database
+            # Instead, we call this function which retrieves a temporary presigned URL by providing
+            # the file name we want to retrieve
             url = file_handler.get_presigned_file_url(stored, provided)
-            print(url)
+
+            # Assigns the provided file name to the URL
             result[provided] = url
         return jsonify(result)
 
@@ -327,18 +385,20 @@ def get_appointment_times():
         print(e)
         return jsonify({"Result": "Error"})
 
-# Route for making an appointment
+# Creates a new appointment
 @app.route('/make_appointment', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def make_appointment():
     try:
         cur = conn.cursor()
 
-        #All the necessary info is retrieved from the frontend
+        # All the necessary info is retrieved from the frontend
         patient_id = request.json.get("patient_id")
         doctor_id = request.json.get("doctor_id")
         start_time = request.json.get("start_time")
         end_time = request.json.get("end_time")
+
+        # Inserts the new appointment into the database
         query = """
             INSERT INTO appointment (patient_id, doctor_id, status, start_time, end_time)
             VALUES (%s, %s, %s, %s, %s)
@@ -350,16 +410,19 @@ def make_appointment():
         print(e)
         return jsonify({"Result": "Error"})
 
-#Route for updating an appointment's status
+# Updates an appointment's status to canceled or completed 
 @app.route('/update_appointment', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def update_appointment():
     try:
         cur = conn.cursor()
+
+        # Retrieves the necessary information from the frontend
         appointment_id = request.get_json("appointment_id")
         new_status = request.get_json("new_status")
         cancel_reason = request.get_json("cancel_reason")
 
+        # Updates the corresponding appointment in the database with new info
         query = """
             UPDATE appointment
             SET status = %s, cancel_reason = %s,
@@ -381,7 +444,11 @@ def update_appointment():
 def delete_appointment():
     try:
         cur = conn.cursor()
+
+        # Retrieves the appointment id from the frontend
         appointment_id = request.get_json("appointment_id")
+        
+        # Deletes the appointment from the database based on id
         query = """
             DELETE FROM appointment
             WHERE appointment_id = %s
@@ -394,17 +461,22 @@ def delete_appointment():
         print(e)
         return jsonify({"Result": "Error"})
 
+# Retrieves the list of appointments for a specific patient
 @app.route('/get_appointments_by_patient_id', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_appointments_by_patient_id():
     try:
         cur = conn.cursor()
+
+        # Retrieves patient id from frontend
         patient_id = request.json.get("patient_id")
         query = """
             SELECT * FROM appointment
             WHERE patient_id = %s
         """
         cur.execute(query, (patient_id, ))
+
+        # Returns the list of appointments for a specific patient
         appointments = cur.fetchall()
         return jsonify({"Result": "Success", "Appointments": appointments})
 
@@ -412,20 +484,29 @@ def get_appointments_by_patient_id():
         print(e)
         return jsonify({"Result": "Error"})
 
+# Retrieves the list of appointments for a specific doctor
 @app.route('/get_appointments_by_doctor_id', methods = ["POST", "GET"])
 @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_appointments_by_doctor_id():
     try:
         cur = conn.cursor()
+
+        # Retrieves the doctor id from the frontend
         doctor_id = request.json.get("doctor_id")
         query = """
             SELECT * FROM appointment
             WHERE doctor_id = %s
         """
         cur.execute(query, (doctor_id, ))
+
+        # Grabs all the appointments for that doctor from the database
         appointments = cur.fetchall()
+
+        # The resulting list of appointments
         result = []
+
         for appointment in appointments:
+            # Grabs the corresponding patient for the appointment
             patient_id = appointment[1]
             query = """
                 SELECT user_id FROM patient
@@ -433,12 +514,16 @@ def get_appointments_by_doctor_id():
             """
             cur.execute(query, (patient_id, ))
             user_id = cur.fetchone()[0]
+
+            # Grabs the patient's full name
             query = """
                 SELECT first_name, last_name FROM System_user
                 WHERE user_id = %s
             """
             cur.execute(query, (user_id, ))
             entry = cur.fetchone()
+
+            # Formats the returned appointment by including the appointment information and the patient's full name
             first_name = entry[0]
             last_name = entry[1]
             appointment_info = []
