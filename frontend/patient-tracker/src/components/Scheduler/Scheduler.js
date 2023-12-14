@@ -51,6 +51,9 @@ function Scheduler() {
 
   return (
     <div className="container">
+      <div className="mt-3 nextApt">
+        <h2> Schedule an Appointment </h2>
+      </div>
       <div className="row">
         <div className="calendar col-1">
           <Calendar

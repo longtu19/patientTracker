@@ -19,6 +19,7 @@ function ListFiles() {
   const [listFiles, setListFiles] = React.useState({});
   const [uploadTrigger, setUploadTrigger] = useState(false); // New state variable
 
+  // communicate with backend to send patient id and role to get list file
   useEffect(() => {
     const fetchDate = async () => {
       try {
@@ -40,6 +41,7 @@ function ListFiles() {
     fetchDate();
   }, [roleId, uploadTrigger]);
 
+  // send uploaded file over to database
   const handleUploadFile = async (formData) => {
     const response = await fetch("http://127.0.0.1:5000/upload_file", {
       method: "POST",
@@ -55,6 +57,7 @@ function ListFiles() {
     }
   };
 
+  // update files change
   const onFileChange = (event) => {
     // setFile(event.target.files[0]);
     const selectedFile = event.target.files[0];
@@ -68,6 +71,9 @@ function ListFiles() {
 
   return (
     <div className="container ">
+      <div className="mt-3 nextApt">
+        <h2> Medical Records </h2>
+      </div>
       <div className="list-files">
         {Object.keys(listFiles).length === 0 && (
           <div>

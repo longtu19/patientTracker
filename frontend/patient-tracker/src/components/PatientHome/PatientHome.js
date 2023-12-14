@@ -2,18 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./patient-home.css";
 import { Button } from "reactstrap";
-function upload() {
-  alert("upload?");
-}
 
-function update() {
-  alert("update?");
-}
 
 function PatientHome() {
   //const [userId, setUserId] = useState(14);
   const userId = localStorage.getItem("user_id");
   const [patient, setPatient] = useState({});
+
+  // connect to server to get doctor information
   useEffect(() => {
     const fetchDate = async () => {
       try {
@@ -43,10 +39,12 @@ function PatientHome() {
     fetchDate()
   }, [userId]);
 
-
-
   return (
-    <div>
+    // UIUX
+    <div className="container">
+      <div className="mt-3 nextApt">
+        <h2> Profile</h2>
+      </div>
       <div className="info-card">
         <div className="avatar">
           <img
@@ -57,14 +55,13 @@ function PatientHome() {
         <div className="info-text">
           <p>First Name: {patient.first_name}</p>
           <p>Last Name: {patient.last_name}</p>
-          <p>Height: {patient.height}</p>
-          <p>Weight: {patient.weight}</p>
+          <p>Height (cm): {patient.height}</p>
+          <p>Weight (kg): {patient.weight}</p>
+          <p>Heart rate (bpm): </p>
+          <p>Blood pressure:</p>
           <p>Date of birth: {patient.date_of_birth}</p>
           <p>Primary Care Physician: {patient.primary_care_doctor_first_name} {patient.primary_care_doctor_last_name}</p>
         </div>
-      </div>
-      <div className="buttons">
-        <Button onClick={update}>Manually Fill out Medical Record</Button>
       </div>
     </div>
   );
