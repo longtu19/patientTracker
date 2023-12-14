@@ -26,6 +26,9 @@ function App() {
               <Route path="/" element={<LogIn />} />
             </Route>
             <Route path="/register" element={<Register />} />
+
+            {/* only available after logged in */}
+            
             <Route element={<PrivateRoute />}>
               <Route path="/doctorhome" element={<DoctorHome />} />
               <Route path="/appointments" element={<Appointments />} />

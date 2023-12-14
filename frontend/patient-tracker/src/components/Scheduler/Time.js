@@ -3,6 +3,7 @@ import { useState } from "react";
 import "./scheduler.css";
 const time = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
 
+// Times object to represent doc's availability
 function Times(props) {
   const timeObj = props.timeList;
   const [selectedTime, setSelectedTime] = useState(null);
@@ -26,6 +27,7 @@ function Times(props) {
     };
   };
 
+  // Sends selected time to backend with patient id and doctor id
   const makeApt = async (time) => {
     let selectedTimeObj = formatTime(selectedDate, selectedTime)
     const response = await fetch("http://127.0.0.1:5000/make_appointment", {
@@ -57,6 +59,7 @@ function Times(props) {
   }
 
   return (
+    // UIUX
     <div className="times">
       {timeObj[selectedDate] &&
         timeObj[selectedDate].map((time) => {

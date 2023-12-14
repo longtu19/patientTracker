@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Navigate, Outlet } from 'react-router-dom';
-
+// handles login and registration
 const ProtectedRoute = () => {
   const loggedIn = localStorage.getItem("user_id");
   const role = localStorage.getItem("user_role")

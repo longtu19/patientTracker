@@ -30,7 +30,7 @@ function PatientProfile() {
         if (result.Result === "Success") {
           setPatient(result.Data);
         }
-
+        // sends patient id to back end and receives stored medical records
         const response2 = await fetch("http://127.0.0.1:5000/get_file_urls", {
           method: "POST",
           mode: "cors",

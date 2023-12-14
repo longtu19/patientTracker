@@ -4,6 +4,7 @@ import Time from "./Time.js";
 import "react-calendar/dist/Calendar.css";
 import "./scheduler.css";
 
+// convert date to format yyyy-mm-dd
 function formatDate(originalDate) {
   const year = originalDate.getFullYear();
   const month = (originalDate.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-based, so we add 1
@@ -19,6 +20,8 @@ function Scheduler() {
   const patId = localStorage.getItem("role_id")
   const [timeList, setTimeList] = useState({});
 
+  // communicates with back end, sends selected date with doctor id
+  // gets available time slots or throw error
   useEffect(() => {
     const fetchDate = async () => {
       const formattedDate = formatDate(date);
@@ -50,6 +53,7 @@ function Scheduler() {
   }, [docId, date]);
 
   return (
+    // UIUX
     <div className="container">
       <div className="mt-3 nextApt">
         <h2> Schedule an Appointment </h2>

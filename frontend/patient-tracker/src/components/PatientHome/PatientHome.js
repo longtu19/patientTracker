@@ -9,7 +9,7 @@ function PatientHome() {
   const userId = localStorage.getItem("user_id");
   const [patient, setPatient] = useState({});
 
-  // connect to server to get doctor information
+  // connect to server to get user information
   useEffect(() => {
     const fetchDate = async () => {
       try {

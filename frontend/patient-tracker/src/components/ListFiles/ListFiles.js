@@ -11,7 +11,6 @@ function update() {
 }
 
 function ListFiles() {
-  //const [userId, setUserId] = useState(14);
   const roleId = localStorage.getItem("role_id");
   console.log(roleId);
 
@@ -70,6 +69,7 @@ function ListFiles() {
   };
 
   return (
+    // UIUX
     <div className="container ">
       <div className="mt-3 nextApt">
         <h2> Medical Records </h2>
