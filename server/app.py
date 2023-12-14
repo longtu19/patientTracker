@@ -8,7 +8,6 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
-from flask_socketio import SocketIO
 
 # Where we store our handler functions
 from file_handler import FileHandler
@@ -19,9 +18,6 @@ load_dotenv()
 
 # Flask app
 app = Flask(__name__)
-socketio = SocketIO(app)
-
-# Bcrypt for password encryption
 bcrypt = Bcrypt(app)
 
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
@@ -226,13 +222,15 @@ def get_file_urls():
         return jsonify({"Result": "Error"})
 
 
-#
+# Retrieves all data of patient
 @app.route('/get_patient_data', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patient_data():
     try:
-        user_id = request.json.get('user_id')
         cur = conn.cursor()
+
+        # Retrieves aser id from frontend
+        user_id = request.json.get('user_id')
         get_user_info_query = """
                 SELECT u.first_name, u.last_name, p.patient_id, p.date_of_birth, p.primary_care_doctor_id
                 FROM patient p
@@ -240,9 +238,11 @@ def get_patient_data():
                 ON p.user_id = u.user_id
                 WHERE u.user_id = %s;
             """
+        # Retrieves all info of patients
         cur.execute(get_user_info_query, (user_id,))
         patient_data = cur.fetchone()
 
+        # Retrieves latest health metrics of patients
         patient_id = patient_data[2]
         get_patient_health_metrics = """
                 SELECT
@@ -262,6 +262,7 @@ def get_patient_data():
         if patient_health_metrics is None:
             patient_health_metrics = [None, None, None, None]
 
+        # Retrieves full name of patient's primary care doctor
         doctor_id = patient_data[4]
         doctor_first_name = None
         doctor_last_name = None
@@ -282,7 +283,7 @@ def get_patient_data():
             doctor_first_name = doctor_name[0]
             doctor_last_name = doctor_name[1]
             
-
+        #Return all the data of patients
         if patient_data:
             return jsonify({
                 "Result": "Success",
@@ -309,9 +310,12 @@ def get_patient_data():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patients_by_doctor_id():
     try:
-        user_id = request.json.get('user_id')
         cur = conn.cursor()
-
+        
+        # Retrieves user id of doctor from frontend
+        user_id = request.json.get('user_id')
+    
+        # Retrieves list of patients' name and id under doctor
         query = """
                 SELECT u.first_name, u.last_name, u.user_id, p.patient_id
                 FROM patient p
@@ -425,7 +429,6 @@ def update_appointment():
         appointment_id = request.get_json("appointment_id")
         new_status = request.get_json("new_status")
         cancel_reason = request.get_json("cancel_reason")
-        patient_id = request.get_json("patient_id")
 
         # Updates the corresponding appointment in the database with new info
         query = """
@@ -435,32 +438,6 @@ def update_appointment():
         """
         cur.execute(query, (new_status, cancel_reason, appointment_id,  ))
         conn.commit()
-
-        retrieve_query = """
-            SELECT doctor_id, patient_id, start_time
-            FROM appointment
-            WHERE appointment_id = %s
-        """
-        cur.execute(retrieve_query, (appointment_id,))
-        appointment_data = cur.fetchone()
-
-        if new_status == "canceled":
-            if appointment_data:
-                doctor_id, patient_id, start_time = appointment_data
-
-                # Check if the patient is connected
-                if patient_id in connected_users:
-                    session_id = connected_users[patient_id]
-                    socketio.emit('appointment_updated', {
-                        'doctor_id': doctor_id,
-                        'patient_id': patient_id,
-                        'reason': cancel_reason,
-                        'scheduled_time': start_time
-                    }, room=session_id, namespace='/patient_notification')
-                else:
-                    print(f"Patient {patient_id} is not connected.")
-            else:
-                return jsonify({"Result": "Error", "Error": "Appointment not found"})
             
         return jsonify({"Result": "Success"})
 
@@ -567,22 +544,6 @@ def get_appointments_by_doctor_id():
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
-        
-connected_users = {}  # Dictionary to track connected users
-
-@socketio.on('connect', namespace='/patient_notification')
-def handle_connect():
-    patient_id = request.args.get('patient_id')
-    session_id = request.sid  # Get the socket session ID
-    connected_users[patient_id] = session_id
-    print(f'Patient {patient_id} connected with session ID {session_id}')
-
-@socketio.on('disconnect', namespace='/patient_notification')
-def handle_disconnect():
-    patient_id = connected_users.get(request.sid)
-    if patient_id in connected_users:
-        del connected_users[patient_id]
-    print(f'Patient {patient_id} disconnected')
 
 #insert new health metrics
 @app.route('/insert_health_metrics', methods = ["POST", "GET"])
@@ -590,11 +551,15 @@ def handle_disconnect():
 def insert_health_metrics():
     try:
         cur = conn.cursor()
+
+        # Retrieves the health metrics from the frontend
         patient_id = request.get_json("patient_id")
         height = request.get_json("height")
         weight = request.get_json("weight")
         blood_pressure = request.get_json("blood_pressure")
         heart_rate = request.get_json("heart_rate")
+
+        # Inserted measured health metrics to database
         query = """
             INSERT INTO health_metrics (patient_id, weight, height, blood_pressure, heart_rate, measurement_date)
             VALUES( %s, %s, %s, %s, %s, current_timestamp)
@@ -608,4 +573,4 @@ def insert_health_metrics():
         return jsonify({"Result": "Error"})
 
 if __name__ == "__main__":
-    socketio.run(app, debug = True)
+    app.run(debug = True)
