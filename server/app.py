@@ -8,14 +8,12 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import random
-from flask_socketio import SocketIO
 
 from file_handler import FileHandler
 from appointment_handler import AppointmentHandler
 
 load_dotenv()
 app = Flask(__name__)
-socketio = SocketIO(app)
 bcrypt = Bcrypt(app)
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -361,7 +359,6 @@ def update_appointment():
         appointment_id = request.get_json("appointment_id")
         new_status = request.get_json("new_status")
         cancel_reason = request.get_json("cancel_reason")
-        patient_id = request.get_json("patient_id")
 
         query = """
             UPDATE appointment
@@ -370,32 +367,6 @@ def update_appointment():
         """
         cur.execute(query, (new_status, cancel_reason, appointment_id,  ))
         conn.commit()
-
-        retrieve_query = """
-            SELECT doctor_id, patient_id, start_time
-            FROM appointment
-            WHERE appointment_id = %s
-        """
-        cur.execute(retrieve_query, (appointment_id,))
-        appointment_data = cur.fetchone()
-
-        if new_status == "canceled":
-            if appointment_data:
-                doctor_id, patient_id, start_time = appointment_data
-
-                # Check if the patient is connected
-                if patient_id in connected_users:
-                    session_id = connected_users[patient_id]
-                    socketio.emit('appointment_updated', {
-                        'doctor_id': doctor_id,
-                        'patient_id': patient_id,
-                        'reason': cancel_reason,
-                        'scheduled_time': start_time
-                    }, room=session_id, namespace='/patient_notification')
-                else:
-                    print(f"Patient {patient_id} is not connected.")
-            else:
-                return jsonify({"Result": "Error", "Error": "Appointment not found"})
             
         return jsonify({"Result": "Success"})
 
@@ -480,22 +451,6 @@ def get_appointments_by_doctor_id():
     except ValueError as e:
         print(e)
         return jsonify({"Result": "Error"})
-        
-connected_users = {}  # Dictionary to track connected users
-
-@socketio.on('connect', namespace='/patient_notification')
-def handle_connect():
-    patient_id = request.args.get('patient_id')
-    session_id = request.sid  # Get the socket session ID
-    connected_users[patient_id] = session_id
-    print(f'Patient {patient_id} connected with session ID {session_id}')
-
-@socketio.on('disconnect', namespace='/patient_notification')
-def handle_disconnect():
-    patient_id = connected_users.get(request.sid)
-    if patient_id in connected_users:
-        del connected_users[patient_id]
-    print(f'Patient {patient_id} disconnected')
 
 #insert new health metrics
 @app.route('/insert_health_metrics', methods = ["POST", "GET"])
@@ -521,4 +476,4 @@ def insert_health_metrics():
         return jsonify({"Result": "Error"})
 
 if __name__ == "__main__":
-    socketio.run(app, debug = True)
+    app.run(debug = True)
