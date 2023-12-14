@@ -101,7 +101,3 @@ class AppointmentHandler:
         except Exception as e:
             print(e)
 
-if __name__ == "__main__":
-    appointment_handler = AppointmentHandler()
-    print(appointment_handler.available_times_in_week(4))
-
