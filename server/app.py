@@ -222,13 +222,15 @@ def get_file_urls():
         return jsonify({"Result": "Error"})
 
 
-#
+# Retrieves all data of patient
 @app.route('/get_patient_data', methods=["POST", "GET"])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patient_data():
     try:
-        user_id = request.json.get('user_id')
         cur = conn.cursor()
+
+        # Retrieves aser id from frontend
+        user_id = request.json.get('user_id')
         get_user_info_query = """
                 SELECT u.first_name, u.last_name, p.patient_id, p.date_of_birth, p.primary_care_doctor_id
                 FROM patient p
@@ -236,9 +238,11 @@ def get_patient_data():
                 ON p.user_id = u.user_id
                 WHERE u.user_id = %s;
             """
+        # Retrieves all info of patients
         cur.execute(get_user_info_query, (user_id,))
         patient_data = cur.fetchone()
 
+        # Retrieves latest health metrics of patients
         patient_id = patient_data[2]
         get_patient_health_metrics = """
                 SELECT
@@ -258,6 +262,7 @@ def get_patient_data():
         if patient_health_metrics is None:
             patient_health_metrics = [None, None, None, None]
 
+        # Retrieves full name of patient's primary care doctor
         doctor_id = patient_data[4]
         doctor_first_name = None
         doctor_last_name = None
@@ -278,7 +283,7 @@ def get_patient_data():
             doctor_first_name = doctor_name[0]
             doctor_last_name = doctor_name[1]
             
-
+        #Return all the data of patients
         if patient_data:
             return jsonify({
                 "Result": "Success",
@@ -305,9 +310,12 @@ def get_patient_data():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def get_patients_by_doctor_id():
     try:
-        user_id = request.json.get('user_id')
         cur = conn.cursor()
-
+        
+        # Retrieves user id of doctor from frontend
+        user_id = request.json.get('user_id')
+    
+        # Retrieves list of patients' name and id under doctor
         query = """
                 SELECT u.first_name, u.last_name, u.user_id, p.patient_id
                 FROM patient p
@@ -543,11 +551,15 @@ def get_appointments_by_doctor_id():
 def insert_health_metrics():
     try:
         cur = conn.cursor()
+
+        # Retrieves the health metrics from the frontend
         patient_id = request.get_json("patient_id")
         height = request.get_json("height")
         weight = request.get_json("weight")
         blood_pressure = request.get_json("blood_pressure")
         heart_rate = request.get_json("heart_rate")
+
+        # Inserted measured health metrics to database
         query = """
             INSERT INTO health_metrics (patient_id, weight, height, blood_pressure, heart_rate, measurement_date)
             VALUES( %s, %s, %s, %s, %s, current_timestamp)
