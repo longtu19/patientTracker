@@ -18,8 +18,6 @@ CREATE TABLE Patient (
     phone_number VARCHAR(50),
     insurance_info TEXT,
     primary_care_doctor_id INT, -- Foreign key added later
-    height INT,
-    weight INT
 );
 
 -- Doctor Table
@@ -35,7 +33,8 @@ CREATE TABLE Medical_record (
     patient_id INT REFERENCES Patient(patient_id) ON DELETE CASCADE,
     stored_filename VARCHAR(255) NOT NULL,
     provided_filename VARCHAR(255) NOT NULL,
-    date DATE
+    date DATE,
+    file_line TEXT
 );
 
 -- Appointment Table
@@ -44,14 +43,17 @@ CREATE TABLE Appointment (
     patient_id INT REFERENCES Patient(patient_id) ON DELETE CASCADE,
     doctor_id INT REFERENCES Doctor(doctor_id) ON DELETE CASCADE,
     scheduled_date_time TIMESTAMP,
-    status VARCHAR(50) DEFAULT 'scheduled' -- Values like 'scheduled', 'canceled', 'completed'
+    status VARCHAR(50) DEFAULT, 'scheduled', -- Values like 'scheduled', 'canceled', 'completed'
+    cancel_reason TEXT
 );
 
 --Doctor's Work Hours Table
 CREATE TABLE Doctor_work_hours(
     availability_id SERIAL PRIMARY KEY,
     doctor_id INT REFERENCES Doctor(doctor_id) ON DELETE CASCADE,
-    day_of_week VARCHAR(3) NOT NULL -- Values like 'Mon', 'Tue', 'Wed', etc.
+    day_of_week VARCHAR(27) NOT NULL, -- Values like 'Mon', 'Tue', 'Wed', etc.
+    start_work_hour TIMESTAMP,
+    end_work_hour TIMESTAMP
 );
 
 CREATE TABLE health_metrics (
