@@ -6,8 +6,12 @@
     padding-top: 15px;
 }
 
+.nextApt {
+    margin-left: 16rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px  solid #162938;
+}
 .info-card-pat-profile{
-    background-color: aliceblue;
     width: 82%;
     margin-left: 16%;
     margin-top: 1%;

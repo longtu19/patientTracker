@@ -13,6 +13,7 @@ function PatientProfile() {
   const [patient, setPatient] = useState({});
   const [listFiles, setListFiles] = React.useState({});
 
+  // communicate with backend to get user ID
   useEffect(() => {
     const fetchDate = async () => {
       try {
@@ -29,7 +30,7 @@ function PatientProfile() {
         if (result.Result === "Success") {
           setPatient(result.Data);
         }
-
+        // sends patient id to back end and receives stored medical records
         const response2 = await fetch("http://127.0.0.1:5000/get_file_urls", {
           method: "POST",
           mode: "cors",
@@ -49,14 +50,19 @@ function PatientProfile() {
   }, [userId]);
 
   return (
-    <div>
-      <h5 className="title">Patient Profile</h5>
+    // UIUX
+    <div className="container">
+      <div className="mt-3 nextApt">
+        <h2> Patient Profile</h2>
+      </div>
       <div className="info-card-pat-profile">
         <div className="patBox">
           <p>First Name: {patient.first_name}</p>
           <p>Last Name: {patient.last_name}</p>
-          <p>Height: {patient.height}</p>
-          <p>Weight: {patient.weight}</p>
+          <p>Height (cm): {patient.height}</p>
+          <p>Weight (kg): {patient.weight}</p>
+          <p>Heart rate (bpm): </p>
+          <p>Blood pressure:</p>
           <p>Date of birth: {patient.date_of_birth}</p>
           <p>
             Primary Care Physician: {patient.primary_care_doctor_first_name}{" "}

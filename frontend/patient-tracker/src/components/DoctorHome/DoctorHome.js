@@ -29,6 +29,7 @@ export default function DoctorHome() {
   let [patLst, setPatLst] = React.useState([]);
   let [selectedPat, setSelectedPat] = React.useState(null);
 
+  // Communicates with server, sends doc's id and get patient list of that doctor
   useEffect(() => {
     const fetchDate = async () => {
       try {
@@ -65,6 +66,7 @@ export default function DoctorHome() {
       item[1].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // redirect to patient profile page when clicked on the patient information
   const handleSelectPat = (userId, firstName, lastName) => {
     setSelectedPat({
       userId: userId,
@@ -84,6 +86,7 @@ export default function DoctorHome() {
   };
 
   return (
+    // UIUX
     <div className="homebg">
       <div className="container d-flex justify-content-center align-items-center  ">
         <div className="employeeBox justify-content-center align-items-center  ">

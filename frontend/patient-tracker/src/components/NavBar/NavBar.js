@@ -16,11 +16,15 @@ function NavBar() {
       <img className="gaupic" src={doctorGau} />
 
       <ul>
+
+      {/* only show for doctor */}
         {user_role === "doctor" && (
           <li>
             <Link to="/doctorhome"> Doctor Home</Link>
           </li>
         )}
+        
+        {/* only show for patient */}
         {user_role === "patient" && (
           <li>
             <Link to="/patienthome"> Patient Home</Link>
@@ -31,7 +35,6 @@ function NavBar() {
             <Link to="/listfiles"> Documents</Link>
           </li>
         )}
-
         {user_role === "patient" && (
           <li>
             <Link to="/scheduler"> Scheduler</Link>
@@ -57,8 +60,6 @@ function NavBar() {
             <button onClick={handleLogOut}>Log out</button>
           </li>
         )}
-
-        {/* Add more navigation links */}
       </ul>
     </nav>
   );
